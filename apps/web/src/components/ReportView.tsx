@@ -30,29 +30,15 @@ export function ReportView({ status, error, report }: ReportViewProps) {
 
       {report ? (
         <div className="report-sections">
+          <AnalysisScope scope={report.analysis_scope} />
           <ReportArtifacts artifacts={report.artifacts} />
-
-          <ReportListSection
-            title="Observations"
-            items={report.observations.map((item) => ({
-              primary: item.text,
-              quote: item.quote,
-            }))}
-          />
-
-          <ReportListSection
-            title="Evidence"
-            items={report.evidence.map((item) => ({
-              primary: item.text,
-              quote: item.quote,
-            }))}
-          />
+          <ObservationsSection observations={report.observations} />
 
           <ReportListSection
             title="Inferences"
             items={report.inferences.map((item) => ({
               primary: item.text,
-              meta: `Confidence: ${item.confidence}`,
+              meta: `Confidence: ${item.confidence} · Based on: ${item.based_on.join(", ")}`,
             }))}
           />
 
@@ -84,8 +70,8 @@ export function ReportView({ status, error, report }: ReportViewProps) {
         status !== "submitting" && (
           <div className="report-sections">
             {[
-              "Observations",
-              "Evidence",
+              "Analysis Scope",
+              "Observations (with nested Evidence)",
               "Inferences",
               "Unknowns",
               "Confidence",
@@ -136,6 +122,86 @@ function ReportListSection({
   );
 }
 
+function ObservationsSection({
+  observations,
+}: {
+  observations: InvestigationReport["observations"];
+}) {
+  return (
+    <article className="report-section">
+      <h3>Observations</h3>
+      <p className="muted">
+        Evidence is nested under each observation to keep support traceable.
+      </p>
+      {observations.length === 0 ? (
+        <p className="placeholder">None listed.</p>
+      ) : (
+        <ul className="report-list">
+          {observations.map((observation) => (
+            <li key={observation.id}>
+              <p>
+                <span className="id-chip">{observation.id}</span>{" "}
+                {observation.text}
+              </p>
+              {observation.quote ? (
+                <blockquote>{observation.quote}</blockquote>
+              ) : null}
+
+              <div className="nested-evidence">
+                <p className="meta">Evidence</p>
+                {observation.evidence.length === 0 ? (
+                  <p className="placeholder">No supporting evidence listed.</p>
+                ) : (
+                  <ul className="report-list">
+                    {observation.evidence.map((item) => (
+                      <li key={item.id}>
+                        <p>
+                          <span className="id-chip">{item.id}</span> {item.text}
+                        </p>
+                        {item.quote ? <blockquote>{item.quote}</blockquote> : null}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </article>
+  );
+}
+
+function AnalysisScope({
+  scope,
+}: {
+  scope: InvestigationReport["analysis_scope"];
+}) {
+  return (
+    <article className="report-section">
+      <h3>Analysis Scope</h3>
+      <div className="scope-grid">
+        <div>
+          <p className="meta">Performed</p>
+          <ul className="report-list">
+            {scope.performed.map((item) => (
+              <li key={`performed-${item}`}>{item}</li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <p className="meta">Not performed</p>
+          <ul className="report-list">
+            {scope.not_performed.map((item) => (
+              <li key={`not-performed-${item}`}>{item}</li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </article>
+  );
+}
+
 function ReportArtifacts({
   artifacts,
 }: {
@@ -157,8 +223,8 @@ function ReportArtifacts({
     <article className="report-section">
       <h3>Extracted artifacts</h3>
       <p className="muted">
-        Listed from the pasted text only. SignalTrace did not visit or look up
-        these values.
+        Extracted on the server from the pasted text only. SignalTrace did not
+        visit or look up these values.
       </p>
       {groups.map(([label, values]) =>
         values.length > 0 ? (

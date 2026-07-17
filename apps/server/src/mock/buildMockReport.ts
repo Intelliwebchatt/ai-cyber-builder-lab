@@ -1,101 +1,92 @@
-import type { AnalyzeRequest, InvestigationReport } from "@signaltrace/shared";
-
-const URL_PATTERN = /\bhttps?:\/\/[^\s<>"']+/gi;
-const EMAIL_PATTERN = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi;
-const PHONE_PATTERN = /\b(?:\+?\d{1,3}[-.\s]?)?(?:\(?\d{3}\)?[-.\s]?)\d{3}[-.\s]?\d{4}\b/g;
-
-function unique(values: string[]): string[] {
-  return [...new Set(values)];
-}
-
-function extractDomain(url: string): string | null {
-  try {
-    return new URL(url).hostname || null;
-  } catch {
-    return null;
-  }
-}
+import {
+  PHASE1_ANALYSIS_SCOPE,
+  type AnalyzeRequest,
+  type InvestigationReport,
+} from "@signaltrace/shared";
 
 /** Deterministic mock report for Issue #2. No model calls. */
-export function buildMockReport(request: AnalyzeRequest): InvestigationReport {
+export function buildMockReport(
+  request: AnalyzeRequest,
+): Omit<InvestigationReport, "artifacts"> {
   const message = request.message;
   const context = request.context?.trim() || null;
 
-  const urls = unique(message.match(URL_PATTERN) ?? []);
-  const domains = unique(
-    urls
-      .map(extractDomain)
-      .filter((value): value is string => Boolean(value)),
-  );
-  const emails = unique(message.match(EMAIL_PATTERN) ?? []);
-  const phones = unique(message.match(PHONE_PATTERN) ?? []);
-
   const observations: InvestigationReport["observations"] = [
     {
+      id: "O1",
       text: "The submitted text was accepted for local mock analysis only.",
       quote: message.slice(0, 160) || null,
+      evidence: [
+        {
+          id: "E1",
+          text: "Analysis input is limited to the pasted text and optional context.",
+          quote: null,
+        },
+      ],
     },
   ];
 
   if (context) {
     observations.push({
+      id: "O2",
       text: "The user supplied optional context with the message.",
       quote: context.slice(0, 160),
+      evidence: [
+        {
+          id: "E2",
+          text: "Optional context was provided alongside the pasted message.",
+          quote: context.slice(0, 160),
+        },
+      ],
     });
   }
 
-  if (urls.length > 0) {
+  const hasUrl = /\bhttps?:\/\//i.test(message);
+  if (hasUrl) {
+    const urlMatch = message.match(/\bhttps?:\/\/[^\s<>"']+/i);
     observations.push({
+      id: "O3",
       text: "One or more URL strings appear in the pasted text.",
-      quote: urls[0] ?? null,
+      quote: urlMatch?.[0] ?? null,
+      evidence: [
+        {
+          id: "E3",
+          text: "A URL-like substring was observed in the paste (not visited).",
+          quote: urlMatch?.[0] ?? null,
+        },
+      ],
     });
   }
 
-  const evidence: InvestigationReport["evidence"] = [
-    {
-      text: "Analysis is based solely on the pasted text and optional context.",
-      quote: null,
-    },
-  ];
-
-  if (emails.length > 0) {
-    evidence.push({
-      text: "An email address string appears in the pasted text.",
-      quote: emails[0] ?? null,
-    });
-  }
+  const basedOn = observations.flatMap((observation) => [
+    observation.id,
+    ...observation.evidence.map((item) => item.id),
+  ]);
 
   const inferences: InvestigationReport["inferences"] = [
     {
       text: "This mock response does not determine whether the message is a scam.",
       confidence: "low",
+      based_on: basedOn.slice(0, 2),
     },
   ];
 
-  if (urls.length > 0 || domains.length > 0) {
+  if (hasUrl) {
     inferences.push({
-      text: "Links or domains in the text are unverified because Phase 1 performs no external lookups.",
+      text: "Links in the text are unverified because Phase 1 performs no external lookups.",
       confidence: "high",
+      based_on: ["O3", "E3"],
     });
   }
-
-  const unknowns: InvestigationReport["unknowns"] = [];
-
-  if (urls.length > 0 || domains.length > 0) {
-    unknowns.push({
-      text: "Destination, ownership, and reputation of listed URLs/domains were not checked.",
-    });
-  }
-
-  unknowns.push({
-    text: "Sender identity and delivery channel authenticity were not verified.",
-  });
 
   return {
     observations,
-    evidence,
     inferences,
-    unknowns,
+    unknowns: [
+      {
+        text: "No external verification was performed, so sender authenticity, destination safety, and delivery-channel legitimacy remain unknown.",
+      },
+    ],
     confidence: {
       level: "low",
       rationale:
@@ -115,11 +106,9 @@ export function buildMockReport(request: AnalyzeRequest): InvestigationReport {
         priority: "soon",
       },
     ],
-    artifacts: {
-      urls,
-      domains,
-      emails,
-      phones,
+    analysis_scope: {
+      performed: [...PHASE1_ANALYSIS_SCOPE.performed],
+      not_performed: [...PHASE1_ANALYSIS_SCOPE.not_performed],
     },
   };
 }

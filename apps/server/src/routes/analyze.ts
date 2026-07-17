@@ -1,6 +1,7 @@
 import {
   analyzeRequestSchema,
   parseInvestigationReport,
+  withServerExtractedArtifacts,
   type AnalyzeRequest,
   type InvestigationReport,
 } from "@signaltrace/shared";
@@ -30,7 +31,14 @@ analyze.post("/", async (c) => {
   }
 
   const request: AnalyzeRequest = parsedRequest.data;
-  const mockReport = buildMockReport(request);
+
+  // Artifacts are always reconciled from server-side extraction, never trusted
+  // from a model-authored payload (mock today; Gemini later).
+  const mockWithoutArtifacts = buildMockReport(request);
+  const mockReport = withServerExtractedArtifacts(
+    mockWithoutArtifacts,
+    request.message,
+  );
 
   let report: InvestigationReport;
   try {
@@ -49,6 +57,7 @@ analyze.post("/", async (c) => {
     meta: {
       mode: "mock",
       provider: "none",
+      artifacts_source: "server_extraction",
     },
   });
 });

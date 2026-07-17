@@ -118,6 +118,36 @@ h3,
   word-break: break-all;
 }
 
+.id-chip {
+  display: inline-block;
+  margin-right: 0.35rem;
+  padding: 0.05rem 0.35rem;
+  border: 1px solid var(--line);
+  background: #f0f4f6;
+  color: var(--brand);
+  font-family: "Segoe UI", "Helvetica Neue", sans-serif;
+  font-size: 0.8rem;
+  font-weight: 650;
+}
+
+.nested-evidence {
+  margin-top: 0.55rem;
+  padding: 0.55rem 0.65rem;
+  border-left: 3px solid var(--brand);
+  background: #f7faf8;
+}
+
+.scope-grid {
+  display: grid;
+  gap: 0.85rem;
+}
+
+@media (min-width: 640px) {
+  .scope-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
 .disclaimer {
   background: var(--disclaimer-bg);
   border-left: 4px solid var(--brand);
