@@ -7,24 +7,24 @@ Phase 1 is an educational / investigative aid for self-help review. It is **not*
 ## What Phase 1 does
 
 - Accepts pasted plain text (and optional short context)
-- Returns a structured investigation report through `POST /api/analyze`
+- Calls **Google Gemini only** through the local server (`@google/genai`)
+- Validates every model response with the shared Zod schema (strict; unexpected keys rejected)
+- Allows **one** controlled repair attempt if the first response fails validation
+- Overwrites artifacts via server-side extraction and fixes `analysis_scope` to Phase 1 limits
 - Runs as a local web app + local API on your machine
-- Will call **Google Gemini only** in a later issue (not yet wired)
 
 ## What Phase 1 does not do
 
-- No link visiting, DNS, WHOIS, reputation lookups, or OSINT
+- No link visiting, DNS, WHOIS, reputation lookups, browsing, or OSINT
 - No authentication, database, or saved cases
 - No multi-provider AI support
-- **No Gemini / model calls in the current Issue #2 mock mode**
+- No public deployment in this phase
 
 ## Privacy warning
 
-**Mock mode (current):** Analyze does not send text to Google.
+**Submitted text is sent to Google (Gemini API)** when Analyze runs in live mode.
 
-**When live Gemini analysis is enabled later:** submitted text will be sent to Google (Gemini API).
-
-Before using live analysis, remove:
+Before pasting, remove:
 
 - passwords
 - one-time codes
@@ -35,19 +35,19 @@ Before using live analysis, remove:
 
 The Gemini API key stays on the **local server only** (`GEMINI_API_KEY`). It must never be placed in frontend env vars.
 
-## Repository status (Issue #2)
+## Repository status (Issue #3)
 
-- `packages/shared` — Zod investigation report + analyze request schemas
-- `apps/server` — `GET /api/health`, mocked `POST /api/analyze`
-- `apps/web` — Analyze form wired to mock API; renders all report sections
-- Schema validation tests in shared + mocked analyze route tests on server
-- No Gemini SDK and no real model calls
+- `packages/shared` — Zod report contract + finalize helpers
+- `apps/server` — Gemini analyze path, prompt `v1`, structured JSON output, repair-once validation
+- `apps/web` — live analyze loading/error states
+- `fixtures/` — 10 evaluation fixtures (scam, benign, ambiguous, injection, URL/no-URL, privacy, hallucination, malformed JSON, false reassurance)
+- Explicit offline mock only when `ANALYZE_MODE=mock`
 
 ## Prerequisites
 
 - Node.js 20+
 - npm
-- A Google Gemini API key (needed for later issues; unused by mock analyze)
+- A Google Gemini API key and model id
 
 ## Setup
 
@@ -55,7 +55,9 @@ The Gemini API key stays on the **local server only** (`GEMINI_API_KEY`). It mus
 npm install
 npm run build -w @signaltrace/shared
 cp apps/server/.env.example apps/server/.env
-# GEMINI_* values are unused in mock mode; required in a later issue
+# Edit apps/server/.env:
+#   GEMINI_API_KEY=...
+#   GEMINI_MODEL=...   # exact current model id for your free/paid tier
 ```
 
 ## Run locally (two terminals)
@@ -69,7 +71,7 @@ npm run dev:server
 API listens on `http://localhost:8787` by default.
 
 - Health: `GET http://localhost:8787/api/health`
-- Analyze (mock): `POST http://localhost:8787/api/analyze` with JSON `{ "message": "...", "context": "..." }`
+- Analyze: `POST http://localhost:8787/api/analyze` with JSON `{ "message": "...", "context": "..." }`
 
 Terminal 2 — Web:
 
@@ -79,11 +81,20 @@ npm run dev:web
 
 Open `http://localhost:5173`.
 
+### Offline mock (optional)
+
+```bash
+ANALYZE_MODE=mock npm run dev:server
+```
+
 ## Tests
 
 ```bash
 npm test
+npm run build
 ```
+
+CI uses mocked/scripted Gemini responses. Live provider calls are not required for the default test suite.
 
 ## Environment variables
 
@@ -91,16 +102,26 @@ See `apps/server/.env.example`:
 
 | Variable | Purpose |
 |----------|---------|
-| `GEMINI_API_KEY` | Server-only Gemini API key (later issue) |
-| `GEMINI_MODEL` | Exact Gemini model identifier (later issue) |
+| `GEMINI_API_KEY` | Server-only Gemini API key |
+| `GEMINI_MODEL` | Exact Gemini model identifier (configurable as Google changes availability) |
 | `PORT` | Local API port (default `8787`) |
 | `WEB_ORIGIN` | CORS allowlist for the Vite app (default `http://localhost:5173`) |
+| `ANALYZE_MODE` | Set to `mock` for offline mock analysis; omit for live Gemini |
 
 Optional web:
 
 | Variable | Purpose |
 |----------|---------|
 | `VITE_API_BASE` | API base URL (default `http://localhost:8787`) |
+
+## Error handling (live mode)
+
+| Condition | HTTP | Notes |
+|-----------|------|-------|
+| Missing/placeholder Gemini credentials | 503 | Fail closed; no silent mock fallback |
+| Gemini HTTP 429 / rate limit | 429 | Clear error; no repeated silent retries |
+| Provider failure | 502 | Surfaced to the UI |
+| Invalid model JSON/schema after one repair | 422 | One repair attempt only |
 
 ## Investigation doctrine (product rules)
 

@@ -52,7 +52,7 @@ export function AnalyzeForm({
         </label>
 
         <button type="submit" disabled={submitting || message.trim().length === 0}>
-          {submitting ? "Analyzing…" : "Analyze (mock)"}
+          {submitting ? "Analyzing with Gemini…" : "Analyze"}
         </button>
       </form>
     </section>

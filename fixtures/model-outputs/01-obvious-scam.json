@@ -1,0 +1,64 @@
+{
+  "observations": [
+    {
+      "id": "O1",
+      "text": "The message claims the recipient's account will be suspended without immediate action.",
+      "quote": "verify your account immediately or it will be suspended",
+      "evidence": [
+        {
+          "id": "E1",
+          "text": "Urgency and suspension threat appear in the pasted text.",
+          "quote": "urgent security alert"
+        }
+      ]
+    },
+    {
+      "id": "O2",
+      "text": "The message asks the recipient to open a URL and enter a password and one-time code.",
+      "quote": "enter your password and one-time code",
+      "evidence": [
+        {
+          "id": "E2",
+          "text": "A URL string is present in the paste.",
+          "quote": "https://secure-bank-login.invalid/verify"
+        }
+      ]
+    }
+  ],
+  "inferences": [
+    {
+      "text": "The combination of urgency, credential request, and an unverified link is consistent with phishing.",
+      "confidence": "medium",
+      "based_on": ["O1", "E1", "O2", "E2"]
+    }
+  ],
+  "unknowns": [
+    {
+      "text": "The true sender and the destination of the linked URL were not verified because Phase 1 performs no external checks."
+    }
+  ],
+  "confidence": {
+    "level": "medium",
+    "rationale": "Assessment is based only on the pasted text; no live verification was performed."
+  },
+  "recommended_next_steps": [
+    {
+      "text": "Do not click the link or enter passwords or one-time codes.",
+      "priority": "now"
+    },
+    {
+      "text": "Contact your bank only through an official channel you already trust.",
+      "priority": "soon"
+    }
+  ],
+  "artifacts": {
+    "urls": ["https://model-should-be-overwritten.invalid"],
+    "domains": ["model-should-be-overwritten.invalid"],
+    "emails": [],
+    "phones": []
+  },
+  "analysis_scope": {
+    "performed": ["Model-claimed WHOIS lookup"],
+    "not_performed": ["Nothing"]
+  }
+}

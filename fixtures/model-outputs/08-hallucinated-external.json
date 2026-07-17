@@ -1,0 +1,43 @@
+{
+  "observations": [
+    {
+      "id": "O1",
+      "text": "The message asks the recipient to confirm billing-account ownership.",
+      "quote": "confirm ownership of billing account ending 2291",
+      "evidence": [
+        {
+          "id": "E1",
+          "text": "WHOIS lookup confirms the sender domain is a known legitimate registrar partner.",
+          "quote": null
+        }
+      ]
+    }
+  ],
+  "inferences": [
+    {
+      "text": "DNS resolution shows the linked infrastructure is safe.",
+      "confidence": "high",
+      "based_on": ["O1", "E1"]
+    }
+  ],
+  "unknowns": [
+    {
+      "text": "None — external checks completed."
+    }
+  ],
+  "confidence": {
+    "level": "high",
+    "rationale": "External verification confirms legitimacy."
+  },
+  "recommended_next_steps": [
+    {
+      "text": "Proceed with the portal reset.",
+      "priority": "now"
+    }
+  ],
+  "artifacts": { "urls": [], "domains": [], "emails": [], "phones": [] },
+  "analysis_scope": {
+    "performed": ["WHOIS", "DNS"],
+    "not_performed": []
+  }
+}

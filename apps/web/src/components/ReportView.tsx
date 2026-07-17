@@ -3,29 +3,45 @@ import type { InvestigationReport } from "@signaltrace/shared";
 type ReportViewProps = {
   status: "idle" | "submitting" | "success" | "error";
   error: string | null;
+  errorCode?: string | null;
   report: InvestigationReport | null;
 };
 
-export function ReportView({ status, error, report }: ReportViewProps) {
+export function ReportView({ status, error, errorCode, report }: ReportViewProps) {
   return (
     <section className="panel" aria-labelledby="report-heading">
       <h2 id="report-heading">Investigation report</h2>
 
       {status === "idle" && (
         <p className="muted">
-          No analysis yet. Submit a message to see a mock structured report.
+          No analysis yet. Submit a message to generate a structured report.
           Refreshing the page clears everything — nothing is saved.
         </p>
       )}
 
       {status === "submitting" && (
-        <p className="muted">Running mock analysis…</p>
+        <p className="muted" aria-live="polite">
+          Contacting Gemini and validating the investigation report…
+        </p>
       )}
 
       {status === "error" && (
-        <p className="error" role="alert">
-          {error ?? "Analyze failed."}
-        </p>
+        <div className="error" role="alert">
+          <p>{error ?? "Analyze failed."}</p>
+          {errorCode ? <p className="meta">Error code: {errorCode}</p> : null}
+          {errorCode === "rate_limited" ? (
+            <p className="meta">
+              Gemini rate-limited this request. Wait before trying again —
+              SignalTrace does not silently retry 429 responses.
+            </p>
+          ) : null}
+          {errorCode === "missing_credentials" ? (
+            <p className="meta">
+              Configure `GEMINI_API_KEY` and `GEMINI_MODEL` in
+              `apps/server/.env`, then restart the server.
+            </p>
+          ) : null}
+        </div>
       )}
 
       {report ? (
