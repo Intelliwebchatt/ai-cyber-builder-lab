@@ -4,12 +4,14 @@
   "version": "0.1.0",
   "description": "AI-assisted scam investigation aid — local-first MVP",
   "workspaces": [
-    "apps/*"
+    "apps/*",
+    "packages/*"
   ],
   "scripts": {
     "dev:server": "npm run dev -w @signaltrace/server",
     "dev:web": "npm run dev -w @signaltrace/web",
-    "build": "npm run build -w @signaltrace/server && npm run build -w @signaltrace/web",
+    "build": "npm run build -w @signaltrace/shared && npm run build -w @signaltrace/server && npm run build -w @signaltrace/web",
+    "test": "npm run test -w @signaltrace/shared && npm run test -w @signaltrace/server",
     "start:server": "npm run start -w @signaltrace/server"
   },
   "engines": {

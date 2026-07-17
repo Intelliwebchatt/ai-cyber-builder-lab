@@ -1,34 +1,13 @@
 import { serve } from "@hono/node-server";
-import { Hono } from "hono";
-import { cors } from "hono/cors";
-import { health } from "./routes/health.js";
+import { createApp } from "./app.js";
 
 const port = Number(process.env.PORT ?? 8787);
 const webOrigin = process.env.WEB_ORIGIN ?? "http://localhost:5173";
-
-const app = new Hono();
-
-app.use(
-  "*",
-  cors({
-    origin: webOrigin,
-    allowMethods: ["GET", "POST", "OPTIONS"],
-    allowHeaders: ["Content-Type"],
-  }),
-);
-
-app.route("/api/health", health);
-
-app.get("/", (c) =>
-  c.json({
-    name: "SignalTrace API",
-    status: "ok",
-    phase: "issue-1-scaffold",
-  }),
-);
+const app = createApp(webOrigin);
 
 console.log(`SignalTrace server listening on http://localhost:${port}`);
 console.log(`CORS web origin: ${webOrigin}`);
+console.log("Analyze mode: mock (no Gemini calls)");
 
 serve({
   fetch: app.fetch,
