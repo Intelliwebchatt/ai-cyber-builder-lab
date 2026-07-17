@@ -4,9 +4,11 @@ export function Disclaimer() {
       <h2 className="disclaimer-title">Before you paste</h2>
       <ul>
         <li>
-          Submitted text will be sent to <strong>Google Gemini</strong> for
-          analysis once Analyze is enabled. Remove passwords, one-time codes,
-          Social Security numbers, and other unnecessary sensitive information.
+          Current Analyze mode is a <strong>local mock</strong> and does not
+          call Gemini. When live analysis is enabled later, submitted text will
+          be sent to <strong>Google Gemini</strong>. Remove passwords, one-time
+          codes, Social Security numbers, and other unnecessary sensitive
+          information before using live analysis.
         </li>
         <li>
           Phase 1 does <strong>not</strong> visit links, resolve DNS, query

@@ -66,6 +66,58 @@ h3,
   color: var(--muted);
 }
 
+.mode-banner {
+  margin: 0.85rem 0 0;
+  max-width: 42rem;
+  color: var(--accent);
+  font-family: "Segoe UI", "Helvetica Neue", sans-serif;
+  font-size: 0.95rem;
+}
+
+.error {
+  color: #8a2b1e;
+  font-family: "Segoe UI", "Helvetica Neue", sans-serif;
+}
+
+.report-list {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.report-list li + li {
+  margin-top: 0.65rem;
+}
+
+.report-list p {
+  margin: 0;
+}
+
+.report-list .meta,
+.meta {
+  margin: 0.2rem 0 0;
+  color: var(--muted);
+  font-family: "Segoe UI", "Helvetica Neue", sans-serif;
+  font-size: 0.9rem;
+}
+
+.report-list blockquote {
+  margin: 0.35rem 0 0;
+  padding: 0.35rem 0.6rem;
+  border-left: 3px solid var(--line);
+  color: var(--muted);
+  background: #f7f4ee;
+}
+
+.artifact-group + .artifact-group {
+  margin-top: 0.75rem;
+}
+
+.artifact-group code {
+  font-family: ui-monospace, "Cascadia Code", "Segoe UI Mono", monospace;
+  font-size: 0.9rem;
+  word-break: break-all;
+}
+
 .disclaimer {
   background: var(--disclaimer-bg);
   border-left: 4px solid var(--brand);

@@ -1,11 +1,53 @@
 import { useState } from "react";
+import type { InvestigationReport } from "@signaltrace/shared";
 import { AnalyzeForm } from "./components/AnalyzeForm";
 import { Disclaimer } from "./components/Disclaimer";
 import { ReportView } from "./components/ReportView";
 
+type AppStatus = "idle" | "submitting" | "success" | "error";
+
+const API_BASE = import.meta.env.VITE_API_BASE ?? "http://localhost:8787";
+
 export default function App() {
   const [message, setMessage] = useState("");
   const [context, setContext] = useState("");
+  const [status, setStatus] = useState<AppStatus>("idle");
+  const [error, setError] = useState<string | null>(null);
+  const [report, setReport] = useState<InvestigationReport | null>(null);
+
+  async function handleAnalyze() {
+    setStatus("submitting");
+    setError(null);
+
+    try {
+      const response = await fetch(`${API_BASE}/api/analyze`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message,
+          context: context.trim() ? context : undefined,
+        }),
+      });
+
+      const payload = (await response.json()) as {
+        report?: InvestigationReport;
+        error?: string;
+      };
+
+      if (!response.ok || !payload.report) {
+        throw new Error(payload.error ?? "Analyze request failed.");
+      }
+
+      setReport(payload.report);
+      setStatus("success");
+    } catch (err) {
+      setReport(null);
+      setStatus("error");
+      setError(
+        err instanceof Error ? err.message : "Analyze request failed.",
+      );
+    }
+  }
 
   return (
     <div className="app">
@@ -16,6 +58,9 @@ export default function App() {
           Paste an email, SMS, or website text. SignalTrace returns a structured
           investigation report — without visiting links or scanning domains.
         </p>
+        <p className="mode-banner">
+          Current mode: <strong>mock analysis</strong> (no Gemini API calls).
+        </p>
       </header>
 
       <Disclaimer />
@@ -24,10 +69,12 @@ export default function App() {
         <AnalyzeForm
           message={message}
           context={context}
+          submitting={status === "submitting"}
           onMessageChange={setMessage}
           onContextChange={setContext}
+          onAnalyze={handleAnalyze}
         />
-        <ReportView />
+        <ReportView status={status} error={error} report={report} />
       </main>
     </div>
   );

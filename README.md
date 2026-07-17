@@ -7,20 +7,24 @@ Phase 1 is an educational / investigative aid for self-help review. It is **not*
 ## What Phase 1 does
 
 - Accepts pasted plain text (and optional short context)
-- Will call **Google Gemini only** (wired in a later issue) to produce a structured report
+- Returns a structured investigation report through `POST /api/analyze`
 - Runs as a local web app + local API on your machine
+- Will call **Google Gemini only** in a later issue (not yet wired)
 
 ## What Phase 1 does not do
 
 - No link visiting, DNS, WHOIS, reputation lookups, or OSINT
 - No authentication, database, or saved cases
 - No multi-provider AI support
+- **No Gemini / model calls in the current Issue #2 mock mode**
 
 ## Privacy warning
 
-When Analyze is enabled, **submitted text is sent to Google (Gemini API)**.
+**Mock mode (current):** Analyze does not send text to Google.
 
-Before pasting, remove:
+**When live Gemini analysis is enabled later:** submitted text will be sent to Google (Gemini API).
+
+Before using live analysis, remove:
 
 - passwords
 - one-time codes
@@ -31,27 +35,27 @@ Before pasting, remove:
 
 The Gemini API key stays on the **local server only** (`GEMINI_API_KEY`). It must never be placed in frontend env vars.
 
-## Repository status (Issue #1)
+## Repository status (Issue #2)
 
-Scaffold only:
-
-- `apps/web` — Vite + React + TypeScript UI shell
-- `apps/server` — Hono API with `/api/health`
-- No model calls yet; Analyze button is disabled
+- `packages/shared` — Zod investigation report + analyze request schemas
+- `apps/server` — `GET /api/health`, mocked `POST /api/analyze`
+- `apps/web` — Analyze form wired to mock API; renders all report sections
+- Schema validation tests in shared + mocked analyze route tests on server
+- No Gemini SDK and no real model calls
 
 ## Prerequisites
 
 - Node.js 20+
 - npm
-- A Google Gemini API key (needed for later issues; not used in Issue #1)
+- A Google Gemini API key (needed for later issues; unused by mock analyze)
 
 ## Setup
 
 ```bash
 npm install
+npm run build -w @signaltrace/shared
 cp apps/server/.env.example apps/server/.env
-# Edit apps/server/.env and set GEMINI_API_KEY and GEMINI_MODEL
-# (required for later issues; unused by the Issue #1 health server)
+# GEMINI_* values are unused in mock mode; required in a later issue
 ```
 
 ## Run locally (two terminals)
@@ -62,8 +66,10 @@ Terminal 1 — API:
 npm run dev:server
 ```
 
-API listens on `http://localhost:8787` by default.  
-Health check: `GET http://localhost:8787/api/health`
+API listens on `http://localhost:8787` by default.
+
+- Health: `GET http://localhost:8787/api/health`
+- Analyze (mock): `POST http://localhost:8787/api/analyze` with JSON `{ "message": "...", "context": "..." }`
 
 Terminal 2 — Web:
 
@@ -73,16 +79,28 @@ npm run dev:web
 
 Open `http://localhost:5173`.
 
+## Tests
+
+```bash
+npm test
+```
+
 ## Environment variables
 
 See `apps/server/.env.example`:
 
 | Variable | Purpose |
 |----------|---------|
-| `GEMINI_API_KEY` | Server-only Gemini API key |
-| `GEMINI_MODEL` | Exact Gemini model identifier (configurable) |
+| `GEMINI_API_KEY` | Server-only Gemini API key (later issue) |
+| `GEMINI_MODEL` | Exact Gemini model identifier (later issue) |
 | `PORT` | Local API port (default `8787`) |
 | `WEB_ORIGIN` | CORS allowlist for the Vite app (default `http://localhost:5173`) |
+
+Optional web:
+
+| Variable | Purpose |
+|----------|---------|
+| `VITE_API_BASE` | API base URL (default `http://localhost:8787`) |
 
 ## Investigation doctrine (product rules)
 
