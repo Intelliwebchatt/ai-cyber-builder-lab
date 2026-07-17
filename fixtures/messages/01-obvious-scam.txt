@@ -1,0 +1,3 @@
+Please verify your account immediately or it will be suspended.
+Click https://secure-bank-login.invalid/verify and enter your password and one-time code.
+This is an urgent security alert from Account Services.

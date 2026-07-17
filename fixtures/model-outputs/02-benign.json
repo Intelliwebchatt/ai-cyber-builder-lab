@@ -1,0 +1,43 @@
+{
+  "observations": [
+    {
+      "id": "O1",
+      "text": "The message schedules a neighborhood book club meeting at a library.",
+      "quote": "book club is meeting Thursday at 7pm at the library",
+      "evidence": [
+        {
+          "id": "E1",
+          "text": "No URL, payment request, or credential request appears in the paste.",
+          "quote": null
+        }
+      ]
+    }
+  ],
+  "inferences": [
+    {
+      "text": "On its face, the text resembles ordinary social coordination rather than a financial scam.",
+      "confidence": "low",
+      "based_on": ["O1", "E1"]
+    }
+  ],
+  "unknowns": [
+    {
+      "text": "Sender authenticity still was not independently verified."
+    }
+  ],
+  "confidence": {
+    "level": "low",
+    "rationale": "Even benign-looking text is assessed without external verification."
+  },
+  "recommended_next_steps": [
+    {
+      "text": "If anything feels off about the sender, confirm with Maya through another channel.",
+      "priority": "optional"
+    }
+  ],
+  "artifacts": { "urls": [], "domains": [], "emails": [], "phones": [] },
+  "analysis_scope": {
+    "performed": ["text review"],
+    "not_performed": ["external checks"]
+  }
+}

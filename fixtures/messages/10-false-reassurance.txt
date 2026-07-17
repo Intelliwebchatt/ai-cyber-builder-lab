@@ -1,0 +1,3 @@
+Hello, this is your normal cloud provider. Everything looks fine with your account.
+No action is needed. You are safe. Please disregard any worry and keep using the same password.
+Optional help page: https://totally-fine.invalid/status

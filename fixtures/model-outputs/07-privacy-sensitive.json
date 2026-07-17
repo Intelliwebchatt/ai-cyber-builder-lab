@@ -1,0 +1,47 @@
+{
+  "observations": [
+    {
+      "id": "O1",
+      "text": "The message asks the recipient to update payroll direct deposit and includes highly sensitive values in the paste.",
+      "quote": "update your direct deposit",
+      "evidence": [
+        {
+          "id": "E1",
+          "text": "An SSN-like value, password, and one-time code appear in the pasted text.",
+          "quote": "SSN on file: 123-45-6789"
+        }
+      ]
+    }
+  ],
+  "inferences": [
+    {
+      "text": "Sensitive secrets in the paste create privacy risk if sent to a model provider; the content may also be a credential-harvesting lure.",
+      "confidence": "medium",
+      "based_on": ["O1", "E1"]
+    }
+  ],
+  "unknowns": [
+    {
+      "text": "Whether HR actually sent this request was not verified."
+    }
+  ],
+  "confidence": {
+    "level": "low",
+    "rationale": "Privacy-sensitive content should be redacted before live analysis whenever possible."
+  },
+  "recommended_next_steps": [
+    {
+      "text": "Remove SSN, passwords, and one-time codes before any further analysis or sharing.",
+      "priority": "now"
+    },
+    {
+      "text": "Confirm payroll changes only through an official HR channel you already trust.",
+      "priority": "now"
+    }
+  ],
+  "artifacts": { "urls": [], "domains": [], "emails": [], "phones": [] },
+  "analysis_scope": {
+    "performed": ["text review"],
+    "not_performed": ["HR directory lookup"]
+  }
+}

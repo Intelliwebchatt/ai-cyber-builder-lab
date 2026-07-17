@@ -1,0 +1,43 @@
+{
+  "observations": [
+    {
+      "id": "O1",
+      "text": "The message asks the recipient to confirm billing-account ownership and refers to a prior email portal link.",
+      "quote": "confirm ownership of billing account ending 2291",
+      "evidence": [
+        {
+          "id": "E1",
+          "text": "The paste advises using a statement phone number rather than a chat-provided number.",
+          "quote": "call the number on your statement — not a number from chat"
+        }
+      ]
+    }
+  ],
+  "inferences": [
+    {
+      "text": "This may be a legitimate warning or a social-engineering lure; the paste alone cannot prove either.",
+      "confidence": "low",
+      "based_on": ["O1", "E1"]
+    }
+  ],
+  "unknowns": [
+    {
+      "text": "Sender authenticity and any portal destination were not verified because Phase 1 performs no external checks."
+    }
+  ],
+  "confidence": {
+    "level": "low",
+    "rationale": "No external lookups were performed; earlier fabricated verification claims were invalid."
+  },
+  "recommended_next_steps": [
+    {
+      "text": "Use only official account channels you already trust; do not rely on chat-provided contacts.",
+      "priority": "now"
+    }
+  ],
+  "artifacts": { "urls": [], "domains": [], "emails": [], "phones": [] },
+  "analysis_scope": {
+    "performed": ["text review"],
+    "not_performed": ["WHOIS"]
+  }
+}

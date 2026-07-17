@@ -16,3 +16,9 @@ export {
   type Artifacts,
   type InvestigationReport,
 } from "./reportSchema.js";
+
+export {
+  finalizeModelReport,
+  findFabricatedVerificationClaims,
+  type FinalizeResult,
+} from "./finalizeReport.js";

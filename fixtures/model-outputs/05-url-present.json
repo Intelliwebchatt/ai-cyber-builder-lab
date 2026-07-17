@@ -1,0 +1,48 @@
+{
+  "observations": [
+    {
+      "id": "O1",
+      "text": "The message claims a mailbox is full and urges the recipient to manage storage through a URL.",
+      "quote": "Your mailbox is full",
+      "evidence": [
+        {
+          "id": "E1",
+          "text": "A URL string is present in the paste.",
+          "quote": "https://mail-quota.invalid/inbox"
+        }
+      ]
+    }
+  ],
+  "inferences": [
+    {
+      "text": "An unverified storage/quota link may be used for phishing; destination safety is unknown.",
+      "confidence": "medium",
+      "based_on": ["O1", "E1"]
+    }
+  ],
+  "unknowns": [
+    {
+      "text": "The linked domain was not resolved or reputation-checked."
+    }
+  ],
+  "confidence": {
+    "level": "low",
+    "rationale": "URL present but not fetched."
+  },
+  "recommended_next_steps": [
+    {
+      "text": "Do not click the link; open your mail provider via a bookmark or official app instead.",
+      "priority": "now"
+    }
+  ],
+  "artifacts": {
+    "urls": ["https://wrong.invalid"],
+    "domains": ["wrong.invalid"],
+    "emails": [],
+    "phones": []
+  },
+  "analysis_scope": {
+    "performed": ["text review"],
+    "not_performed": ["URL fetch"]
+  }
+}

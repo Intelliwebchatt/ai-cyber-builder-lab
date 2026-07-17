@@ -13,11 +13,13 @@ export default function App() {
   const [context, setContext] = useState("");
   const [status, setStatus] = useState<AppStatus>("idle");
   const [error, setError] = useState<string | null>(null);
+  const [errorCode, setErrorCode] = useState<string | null>(null);
   const [report, setReport] = useState<InvestigationReport | null>(null);
 
   async function handleAnalyze() {
     setStatus("submitting");
     setError(null);
+    setErrorCode(null);
 
     try {
       const response = await fetch(`${API_BASE}/api/analyze`, {
@@ -32,9 +34,11 @@ export default function App() {
       const payload = (await response.json()) as {
         report?: InvestigationReport;
         error?: string;
+        code?: string;
       };
 
       if (!response.ok || !payload.report) {
+        setErrorCode(payload.code ?? `http_${response.status}`);
         throw new Error(payload.error ?? "Analyze request failed.");
       }
 
@@ -59,7 +63,8 @@ export default function App() {
           investigation report — without visiting links or scanning domains.
         </p>
         <p className="mode-banner">
-          Current mode: <strong>mock analysis</strong> (no Gemini API calls).
+          Current mode: <strong>Google Gemini</strong> (server-side only). Set
+          `ANALYZE_MODE=mock` on the server for offline mock analysis.
         </p>
       </header>
 
@@ -74,7 +79,12 @@ export default function App() {
           onContextChange={setContext}
           onAnalyze={handleAnalyze}
         />
-        <ReportView status={status} error={error} report={report} />
+        <ReportView
+          status={status}
+          error={error}
+          errorCode={errorCode}
+          report={report}
+        />
       </main>
     </div>
   );

@@ -1,0 +1,77 @@
+{
+  "fixtures": [
+    {
+      "id": "01-obvious-scam",
+      "category": "obvious_scam",
+      "message_file": "messages/01-obvious-scam.txt",
+      "model_output_file": "model-outputs/01-obvious-scam.json",
+      "expect": "valid_after_finalize"
+    },
+    {
+      "id": "02-benign",
+      "category": "benign",
+      "message_file": "messages/02-benign.txt",
+      "model_output_file": "model-outputs/02-benign.json",
+      "expect": "valid_after_finalize"
+    },
+    {
+      "id": "03-ambiguous",
+      "category": "ambiguous",
+      "message_file": "messages/03-ambiguous.txt",
+      "model_output_file": "model-outputs/03-ambiguous.json",
+      "expect": "valid_after_finalize"
+    },
+    {
+      "id": "04-prompt-injection",
+      "category": "prompt_injection",
+      "message_file": "messages/04-prompt-injection.txt",
+      "model_output_file": "model-outputs/04-prompt-injection.json",
+      "expect": "valid_after_finalize"
+    },
+    {
+      "id": "05-url-present",
+      "category": "url_present",
+      "message_file": "messages/05-url-present.txt",
+      "model_output_file": "model-outputs/05-url-present.json",
+      "expect": "valid_after_finalize"
+    },
+    {
+      "id": "06-no-url",
+      "category": "no_url",
+      "message_file": "messages/06-no-url.txt",
+      "model_output_file": "model-outputs/06-no-url.json",
+      "expect": "valid_after_finalize"
+    },
+    {
+      "id": "07-privacy-sensitive",
+      "category": "privacy_sensitive",
+      "message_file": "messages/07-privacy-sensitive.txt",
+      "model_output_file": "model-outputs/07-privacy-sensitive.json",
+      "expect": "valid_after_finalize"
+    },
+    {
+      "id": "08-hallucinated-external-verification",
+      "category": "hallucinated_external_verification",
+      "message_file": "messages/08-hallucination-trigger.txt",
+      "model_output_file": "model-outputs/08-hallucinated-external.json",
+      "repair_output_file": "model-outputs/08-hallucinated-external.repair.json",
+      "expect": "rejected_then_repaired"
+    },
+    {
+      "id": "09-malformed-model-json",
+      "category": "malformed_model_json",
+      "message_file": "messages/09-malformed-trigger.txt",
+      "model_output_file": "model-outputs/09-malformed.txt",
+      "repair_output_file": "model-outputs/09-malformed.repair.json",
+      "expect": "malformed_then_repaired"
+    },
+    {
+      "id": "10-false-reassurance-risk",
+      "category": "false_reassurance_risk",
+      "message_file": "messages/10-false-reassurance.txt",
+      "model_output_file": "model-outputs/10-false-reassurance.json",
+      "repair_output_file": "model-outputs/10-false-reassurance.repair.json",
+      "expect": "policy_or_schema_repair"
+    }
+  ]
+}

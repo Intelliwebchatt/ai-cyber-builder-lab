@@ -1,0 +1,42 @@
+{
+  "observations": [
+    {
+      "id": "O1",
+      "text": "WHOIS shows the domain is registered to a trusted cloud vendor.",
+      "quote": null,
+      "evidence": []
+    }
+  ],
+  "inferences": [
+    {
+      "text": "I visited the status page and confirmed the account is safe.",
+      "confidence": "high",
+      "based_on": ["O1"]
+    }
+  ],
+  "unknowns": [
+    {
+      "text": "No remaining unknowns."
+    }
+  ],
+  "confidence": {
+    "level": "high",
+    "rationale": "Reputation check confirms this is legitimate."
+  },
+  "recommended_next_steps": [
+    {
+      "text": "No action needed; you are safe.",
+      "priority": "optional"
+    }
+  ],
+  "artifacts": {
+    "urls": ["https://model-fake.invalid"],
+    "domains": ["model-fake.invalid"],
+    "emails": [],
+    "phones": []
+  },
+  "analysis_scope": {
+    "performed": ["WHOIS", "browsing"],
+    "not_performed": []
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "observations": [
+    {
+      "id": "O1",
+      "text": "The message asks whether a coworker-like invoice approval request looks normal.",
+      "quote": "approve the invoice when you get a minute",
+      "evidence": [
+        {
+          "id": "E1",
+          "text": "The embedded note is attributed to someone named Jordan.",
+          "quote": "Thanks — Jordan"
+        }
+      ]
+    }
+  ],
+  "inferences": [
+    {
+      "text": "This could be ordinary workplace communication or an invoice redirect scam; more context is needed.",
+      "confidence": "low",
+      "based_on": ["O1", "E1"]
+    }
+  ],
+  "unknowns": [
+    {
+      "text": "Whether Jordan and the invoice are genuine was not verified."
+    }
+  ],
+  "confidence": {
+    "level": "low",
+    "rationale": "Ambiguous workplace request without external confirmation."
+  },
+  "recommended_next_steps": [
+    {
+      "text": "Confirm the invoice through your normal finance system, not through an unexpected side channel.",
+      "priority": "soon"
+    }
+  ],
+  "artifacts": { "urls": [], "domains": [], "emails": [], "phones": [] },
+  "analysis_scope": {
+    "performed": ["text review"],
+    "not_performed": ["finance system lookup"]
+  }
+}

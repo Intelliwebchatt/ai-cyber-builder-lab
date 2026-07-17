@@ -1,0 +1,2 @@
+Your mailbox is full. Manage storage at https://mail-quota.invalid/inbox to keep receiving email.
+If you do nothing, new messages may bounce.

@@ -1,0 +1,43 @@
+{
+  "observations": [
+    {
+      "id": "O1",
+      "text": "The message mentions unusual package activity and asks for a YES reply to confirm an address.",
+      "quote": "Reply YES to confirm your address",
+      "evidence": [
+        {
+          "id": "E1",
+          "text": "A tracking-like reference appears in the text.",
+          "quote": "ZQ-44192"
+        }
+      ]
+    }
+  ],
+  "inferences": [
+    {
+      "text": "This could be a delivery scam or a legitimate carrier notice; the paste alone does not decide which.",
+      "confidence": "low",
+      "based_on": ["O1", "E1"]
+    }
+  ],
+  "unknowns": [
+    {
+      "text": "Carrier identity, message channel authenticity, and whether any package exists remain unknown without external verification."
+    }
+  ],
+  "confidence": {
+    "level": "low",
+    "rationale": "Ambiguous cues with no external confirmation."
+  },
+  "recommended_next_steps": [
+    {
+      "text": "Do not reply YES until you confirm the shipment in an official carrier account you already use.",
+      "priority": "now"
+    }
+  ],
+  "artifacts": { "urls": [], "domains": [], "emails": [], "phones": [] },
+  "analysis_scope": {
+    "performed": ["text review"],
+    "not_performed": ["carrier lookup"]
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "observations": [
+    {
+      "id": "O1",
+      "text": "The message claims to be from a cloud provider and tells the recipient that everything is fine.",
+      "quote": "Everything looks fine with your account",
+      "evidence": [
+        {
+          "id": "E1",
+          "text": "A URL string appears in the paste.",
+          "quote": "https://totally-fine.invalid/status"
+        },
+        {
+          "id": "E2",
+          "text": "The message encourages keeping the same password and dismissing concern.",
+          "quote": "keep using the same password"
+        }
+      ]
+    }
+  ],
+  "inferences": [
+    {
+      "text": "Reassurance language plus an unverified link can be social engineering; safety is not proven.",
+      "confidence": "low",
+      "based_on": ["O1", "E1", "E2"]
+    }
+  ],
+  "unknowns": [
+    {
+      "text": "Provider authenticity and the linked destination were not verified."
+    }
+  ],
+  "confidence": {
+    "level": "low",
+    "rationale": "No external verification was performed; reassurance in the message is not proof."
+  },
+  "recommended_next_steps": [
+    {
+      "text": "Do not click the link or change security settings based on this message alone.",
+      "priority": "now"
+    }
+  ],
+  "artifacts": {
+    "urls": ["https://should-overwrite.invalid"],
+    "domains": ["should-overwrite.invalid"],
+    "emails": [],
+    "phones": []
+  },
+  "analysis_scope": {
+    "performed": ["text review"],
+    "not_performed": ["URL fetch"]
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "observations": [
+    {
+      "id": "O1",
+      "text": "The message claims to be from a sheriff's office about missed jury duty and a fine.",
+      "quote": "You missed jury duty and owe a fine",
+      "evidence": [
+        {
+          "id": "E1",
+          "text": "Payment is requested via gift cards with codes read aloud.",
+          "quote": "Pay with gift cards and read me the codes"
+        }
+      ]
+    }
+  ],
+  "inferences": [
+    {
+      "text": "Gift-card payment for an alleged government fine is a common scam pattern.",
+      "confidence": "medium",
+      "based_on": ["O1", "E1"]
+    }
+  ],
+  "unknowns": [
+    {
+      "text": "Caller identity and any real court case were not verified."
+    }
+  ],
+  "confidence": {
+    "level": "medium",
+    "rationale": "Strong textual indicators, but still no external case verification."
+  },
+  "recommended_next_steps": [
+    {
+      "text": "Do not buy gift cards or read codes to the caller.",
+      "priority": "now"
+    }
+  ],
+  "artifacts": { "urls": [], "domains": [], "emails": [], "phones": [] },
+  "analysis_scope": {
+    "performed": ["text review"],
+    "not_performed": ["court record lookup"]
+  }
+}
