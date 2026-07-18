@@ -48,3 +48,4 @@ reports/generated-*.md
 private/
 secrets/
 evidence/raw-private/
+**/evidence/raw-private/

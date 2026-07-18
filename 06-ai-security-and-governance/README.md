@@ -12,9 +12,9 @@ This track examines security, privacy, reliability, and governance across AI-ena
 - **Structured output + schema validation:** model JSON is constrained and validated; unexpected keys are rejected.
 - **One controlled repair:** if the first response fails validation, exactly one repair attempt is allowed; further failures return 422.
 - **Server-enforced invariants:** artifacts are extracted server-side from the pasted text; `analysis_scope` is overwritten to Phase 1 performed / not-performed lists.
-- **Fabricated-verification rejection:** finalize rejects reports that claim WHOIS, DNS, reputation lookups, or visiting links that Phase 1 does not perform.
+- **Unsupported-verification screening:** validation checks key report fields for defined phrases that suggest unperformed WHOIS, DNS, reputation, link-visit, or external-verification claims.
 - **Prompt versioning:** analysis uses an explicit prompt version (`v1`) with a dedicated repair prompt.
-- **Evaluation fixtures:** `fixtures/` covers scam, benign, ambiguous, injection, URL/no-URL, privacy, hallucination, malformed JSON, and false-reassurance cases; CI uses mocked/scripted Gemini responses.
+- **Evaluation fixtures:** `fixtures/` covers scam, benign, ambiguous, injection, URL/no-URL, privacy, hallucination, malformed JSON, and false-reassurance cases; automated tests use mocked/scripted Gemini responses; live provider calls are not required.
 - **Privacy disclosure:** the product warns that submitted text is sent to Google when Analyze runs in live mode, and asks users to strip passwords, OTPs, SSNs, and other sensitive data first.
 - **Investigation doctrine:** observation before interpretation, evidence before conclusion, unknowns allowed, confidence is not proof, and no automatic side effects on URLs or domains.
 

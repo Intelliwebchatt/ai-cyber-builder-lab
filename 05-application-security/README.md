@@ -11,7 +11,7 @@ This track applies security engineering to full-stack and AI-enabled application
 - **Input bounds:** pasted message and optional context are capped (`MAX_MESSAGE_CHARS` / `MAX_CONTEXT_CHARS`) before analysis.
 - **Strict response contract:** every model response is validated with a shared Zod schema that rejects unexpected keys.
 - **Server-side invariants:** artifact extraction overwrites model-supplied artifacts, and `analysis_scope` is fixed to Phase 1 limits (no URL visit, DNS, WHOIS, reputation, or OSINT).
-- **CORS allowlist:** the API allows only the configured web origin (`WEB_ORIGIN`).
+- **Browser-origin policy:** CORS response headers are configured for `WEB_ORIGIN`; this is browser-enforced and does not replace authentication or server-side authorization.
 - **Secrets stay server-only:** `GEMINI_API_KEY` is read from the local server environment and must never be placed in frontend env vars.
 - **Fail closed:** missing or placeholder Gemini credentials return 503; there is no silent mock fallback in live mode.
 - **Local Phase 1 scope:** no authentication database, saved cases, or public deployment in this phase.

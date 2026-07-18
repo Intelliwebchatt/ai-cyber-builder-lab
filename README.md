@@ -94,7 +94,7 @@ npm test
 npm run build
 ```
 
-CI uses mocked/scripted Gemini responses. Live provider calls are not required for the default test suite.
+Automated tests use mocked/scripted Gemini responses; live provider calls are not required.
 
 ## Environment variables
 
