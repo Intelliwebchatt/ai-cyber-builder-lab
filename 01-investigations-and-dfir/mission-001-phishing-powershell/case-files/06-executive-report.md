@@ -7,7 +7,16 @@
 
 ## Executive summary
 
-A fictional employee reported opening an unexpected invoice attachment. The supplied synthetic telemetry shows a suspicious sequence: invoice email delivery (EVT-001), user report of opening the attachment (EVT-008), spreadsheet application launching PowerShell (EVT-002), matching PowerShell script-block logging (EVT-003), and a PowerShell outbound connection seconds later (EVT-004). Three failed network logons also appear shortly afterward (EVT-005 through EVT-007); any link to the email activity is unconfirmed.
+A fictional employee later reported opening an unexpected invoice attachment. In chronological order, the supplied synthetic telemetry shows:
+
+- EVT-001: email delivery
+- EVT-002: spreadsheet application launched PowerShell
+- EVT-003: matching script-block log
+- EVT-004: outbound connection
+- EVT-005 through EVT-007: failed logons
+- EVT-008: later user report that the attachment was opened
+
+Any link between the failed logons and the email activity is unconfirmed.
 
 Compromise is **not confirmed**. The evidence requires proportionate containment and further investigation, not a declaration of system compromise, credential theft, data loss, or financial loss.
 
@@ -48,7 +57,7 @@ Recommended decision: treat this as a suspicious workstation and account investi
 
 ## Key findings
 
-1. Strongest suspicious relationship: EVT-001 → EVT-008 → EVT-002 → EVT-003 → EVT-004 (invoice email, reported attachment open, spreadsheet-launched PowerShell, script-block log, outbound connection). Supported as leads by E-002 rules R-001 and R-002.
+1. Strongest suspicious relationship: EVT-001 → EVT-002 → EVT-003 → EVT-004, with EVT-008 as a later corroborating user report. EVT-008 supports that the attachment was opened but does not prove that it caused the earlier endpoint activity. Supported as leads by E-002 rules R-001 and R-002.
 2. PowerShell activity is observed with higher confidence that it ran (EVT-002, EVT-003), but the logged command is explicitly simulated and malicious purpose is unconfirmed.
 3. Destination `203.0.113.50` and failed-logon source `198.51.100.24` are documentation-range examples and are not real threat intelligence.
 4. Failed logons EVT-005 through EVT-007 support only a low-confidence brute-force possibility (R-003). Relation to the email/PowerShell sequence is unconfirmed.
