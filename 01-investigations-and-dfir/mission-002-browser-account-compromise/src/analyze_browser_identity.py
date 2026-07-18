@@ -26,6 +26,15 @@ WINDOW_PASSWORD_AFTER_MFA = timedelta(minutes=15)
 WINDOW_PASSWORD_AFTER_BROWSER = timedelta(minutes=20)
 WINDOW_USER_REPORT = timedelta(minutes=120)
 
+CORRELATION_WINDOWS_MINUTES = {
+    "WINDOW_CORPORATE_TO_NON_ALLOWLISTED": 15,
+    "WINDOW_DOWNLOAD_NEAR_VISIT": 15,
+    "WINDOW_IDENTITY_NEAR_BROWSER": 20,
+    "WINDOW_PASSWORD_AFTER_MFA": 15,
+    "WINDOW_PASSWORD_AFTER_BROWSER": 20,
+    "WINDOW_USER_REPORT": 120,
+}
+
 REQUIRED_URL_COLUMNS = {
     "id",
     "url",
@@ -62,6 +71,8 @@ class NormalizedEvent(NamedTuple):
     source_ip: str | None = None
     event_type: str | None = None
     new_device: bool | None = None
+    app: str | None = None
+    result: str | None = None
     sqlite_url_id: int | None = None
     sqlite_visit_id: int | None = None
     sqlite_download_id: int | None = None
@@ -71,11 +82,40 @@ class NormalizedEvent(NamedTuple):
     report_text: str | None = None
 
 
+def require_object(value: Any, label: str) -> dict[str, Any]:
+    if not isinstance(value, dict):
+        raise ValueError(f"{label} must be a JSON object")
+    return value
+
+
+def require_nonblank_str(value: Any, label: str) -> str:
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError(f"{label} must be a non-blank string")
+    return value
+
+
+def require_bool(value: Any, label: str) -> bool:
+    if not isinstance(value, bool):
+        raise ValueError(f"{label} must be a JSON boolean")
+    return value
+
+
+def require_int(value: Any, label: str) -> int:
+    if isinstance(value, bool) or not isinstance(value, int):
+        raise ValueError(f"{label} must be a JSON integer")
+    return value
+
+
 def parse_utc(value: str) -> datetime:
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError(f"Timestamp must be a non-empty string: {value!r}")
     try:
-        return datetime.fromisoformat(value.replace("Z", "+00:00"))
+        dt = datetime.fromisoformat(value.replace("Z", "+00:00"))
     except ValueError as exc:
         raise ValueError(f"Invalid ISO-8601 UTC timestamp: {value}") from exc
+    if dt.tzinfo is None:
+        raise ValueError(f"Timestamp must be timezone-aware ISO-8601: {value}")
+    return dt.astimezone(timezone.utc)
 
 
 def webkit_to_utc(value: int) -> datetime:
@@ -94,22 +134,35 @@ def normalize_host(url: str) -> str:
     return host
 
 
+def validate_correlation_windows(manifest: dict[str, Any]) -> None:
+    windows = manifest.get("correlation_windows_minutes")
+    windows = require_object(windows, "correlation_windows_minutes")
+    for name, expected in CORRELATION_WINDOWS_MINUTES.items():
+        actual = windows.get(name)
+        if not isinstance(actual, int) or isinstance(actual, bool) or actual != expected:
+            raise ValueError(
+                f"Manifest correlation window {name} must equal analyzer constant "
+                f"{expected}, got {actual!r}"
+            )
+
+
 def load_manifest(path: Path) -> dict[str, Any]:
     with path.open("r", encoding="utf-8") as handle:
         manifest = json.load(handle)
-    if not isinstance(manifest, dict):
-        raise ValueError("Manifest must be a JSON object")
+    manifest = require_object(manifest, "Manifest")
     if manifest.get("synthetic") is not True:
         raise ValueError("Manifest must declare synthetic=true")
     for required in (
         "official_host_allowlist",
         "case_attribution",
         "event_mappings",
+        "expected_counts",
+        "correlation_windows_minutes",
         "report_phrase_screen",
     ):
         if required not in manifest:
             raise ValueError(f"Manifest missing required field: {required}")
-    attribution = manifest["case_attribution"]
+    attribution = require_object(manifest["case_attribution"], "case_attribution")
     for required in (
         "host",
         "profile_label",
@@ -119,7 +172,71 @@ def load_manifest(path: Path) -> dict[str, Any]:
     ):
         if required not in attribution:
             raise ValueError(f"case_attribution missing required field: {required}")
+        require_nonblank_str(attribution[required], f"case_attribution.{required}")
+    if not isinstance(manifest["official_host_allowlist"], list):
+        raise ValueError("official_host_allowlist must be a JSON array")
+    for index, host in enumerate(manifest["official_host_allowlist"]):
+        require_nonblank_str(host, f"official_host_allowlist[{index}]")
+    if not isinstance(manifest["report_phrase_screen"], list):
+        raise ValueError("report_phrase_screen must be a JSON array")
+    for index, phrase in enumerate(manifest["report_phrase_screen"]):
+        require_nonblank_str(phrase, f"report_phrase_screen[{index}]")
+    require_object(manifest["expected_counts"], "expected_counts")
+    require_object(manifest["event_mappings"], "event_mappings")
+    validate_correlation_windows(manifest)
+    validate_manifest_mappings(manifest)
     return manifest
+
+
+def validate_manifest_mappings(manifest: dict[str, Any]) -> None:
+    mappings = manifest["event_mappings"]
+    visits = mappings.get("visits")
+    downloads = mappings.get("downloads")
+    if not isinstance(visits, list):
+        raise ValueError("event_mappings.visits must be a JSON array")
+    if not isinstance(downloads, list):
+        raise ValueError("event_mappings.downloads must be a JSON array")
+
+    seen_uids: set[str] = set()
+    seen_visit_ids: set[int] = set()
+    for index, item in enumerate(visits):
+        item = require_object(item, f"event_mappings.visits[{index}]")
+        event_uid = require_nonblank_str(
+            item.get("event_uid"), f"event_mappings.visits[{index}].event_uid"
+        )
+        url_id = require_int(
+            item.get("sqlite_url_id"), f"event_mappings.visits[{index}].sqlite_url_id"
+        )
+        visit_id = require_int(
+            item.get("sqlite_visit_id"),
+            f"event_mappings.visits[{index}].sqlite_visit_id",
+        )
+        if event_uid in seen_uids:
+            raise ValueError(f"Duplicate mapping event_uid: {event_uid}")
+        if visit_id in seen_visit_ids:
+            raise ValueError(f"Duplicate mapping sqlite_visit_id: {visit_id}")
+        seen_uids.add(event_uid)
+        seen_visit_ids.add(visit_id)
+        # Keep url_id referenced so type validation is not dead.
+        if url_id < 1:
+            raise ValueError(f"sqlite_url_id must be >= 1 for {event_uid}")
+
+    seen_download_ids: set[int] = set()
+    for index, item in enumerate(downloads):
+        item = require_object(item, f"event_mappings.downloads[{index}]")
+        event_uid = require_nonblank_str(
+            item.get("event_uid"), f"event_mappings.downloads[{index}].event_uid"
+        )
+        download_id = require_int(
+            item.get("sqlite_download_id"),
+            f"event_mappings.downloads[{index}].sqlite_download_id",
+        )
+        if event_uid in seen_uids:
+            raise ValueError(f"Duplicate mapping event_uid: {event_uid}")
+        if download_id in seen_download_ids:
+            raise ValueError(f"Duplicate mapping sqlite_download_id: {download_id}")
+        seen_uids.add(event_uid)
+        seen_download_ids.add(download_id)
 
 
 def load_identity_events(path: Path) -> list[dict[str, Any]]:
@@ -133,6 +250,7 @@ def load_identity_events(path: Path) -> list[dict[str, Any]]:
                 event = json.loads(line)
             except json.JSONDecodeError as exc:
                 raise ValueError(f"Invalid JSON on line {line_number}: {exc.msg}") from exc
+            event = require_object(event, f"Line {line_number}")
             for required in (
                 "event_uid",
                 "timestamp",
@@ -140,6 +258,7 @@ def load_identity_events(path: Path) -> list[dict[str, Any]]:
                 "user",
                 "source",
                 "source_ip",
+                "app",
                 "result",
             ):
                 if required not in event:
@@ -150,11 +269,21 @@ def load_identity_events(path: Path) -> list[dict[str, Any]]:
                 raise ValueError(
                     f"Line {line_number} must declare synthetic=true"
                 )
-            event_uid = str(event["event_uid"])
+            event_uid = require_nonblank_str(
+                event["event_uid"], f"Line {line_number} event_uid"
+            )
             if event_uid in seen:
                 raise ValueError(f"Duplicate identity event_uid: {event_uid}")
             seen.add(event_uid)
-            parse_utc(str(event["timestamp"]))
+            require_nonblank_str(event["event_type"], f"Line {line_number} event_type")
+            require_nonblank_str(event["user"], f"Line {line_number} user")
+            require_nonblank_str(event["source"], f"Line {line_number} source")
+            require_nonblank_str(event["source_ip"], f"Line {line_number} source_ip")
+            require_nonblank_str(event["app"], f"Line {line_number} app")
+            require_nonblank_str(event["result"], f"Line {line_number} result")
+            parse_utc(event["timestamp"])
+            if "new_device" in event:
+                require_bool(event["new_device"], f"Line {line_number} new_device")
             events.append(event)
     return events
 
@@ -162,6 +291,7 @@ def load_identity_events(path: Path) -> list[dict[str, Any]]:
 def load_user_report(path: Path) -> dict[str, Any]:
     with path.open("r", encoding="utf-8") as handle:
         report = json.load(handle)
+    report = require_object(report, "User report")
     for required in (
         "event_uid",
         "timestamp",
@@ -175,7 +305,13 @@ def load_user_report(path: Path) -> dict[str, Any]:
             raise ValueError(f"User report missing required field: {required}")
     if report.get("synthetic") is not True:
         raise ValueError("User report must declare synthetic=true")
-    parse_utc(str(report["timestamp"]))
+    require_nonblank_str(report["event_uid"], "User report event_uid")
+    require_nonblank_str(report["ticket_id"], "User report ticket_id")
+    require_nonblank_str(report["reporter"], "User report reporter")
+    require_nonblank_str(report["source"], "User report source")
+    require_nonblank_str(report["summary"], "User report summary")
+    require_nonblank_str(report["description"], "User report description")
+    parse_utc(report["timestamp"])
     return report
 
 
@@ -213,14 +349,22 @@ def load_browser_events(
     history_path: Path,
     manifest: dict[str, Any],
 ) -> list[NormalizedEvent]:
-    visit_map = {
-        int(item["sqlite_visit_id"]): str(item["event_uid"])
-        for item in manifest["event_mappings"]["visits"]
-    }
-    download_map = {
-        int(item["sqlite_download_id"]): str(item["event_uid"])
-        for item in manifest["event_mappings"]["downloads"]
-    }
+    visit_map: dict[int, tuple[str, int]] = {}
+    for item in manifest["event_mappings"]["visits"]:
+        visit_id = require_int(item["sqlite_visit_id"], "sqlite_visit_id")
+        url_id = require_int(item["sqlite_url_id"], "sqlite_url_id")
+        event_uid = require_nonblank_str(item["event_uid"], "event_uid")
+        if visit_id in visit_map:
+            raise ValueError(f"Duplicate mapping sqlite_visit_id: {visit_id}")
+        visit_map[visit_id] = (event_uid, url_id)
+
+    download_map: dict[int, str] = {}
+    for item in manifest["event_mappings"]["downloads"]:
+        download_id = require_int(item["sqlite_download_id"], "sqlite_download_id")
+        event_uid = require_nonblank_str(item["event_uid"], "event_uid")
+        if download_id in download_map:
+            raise ValueError(f"Duplicate mapping sqlite_download_id: {download_id}")
+        download_map[download_id] = event_uid
 
     events: list[NormalizedEvent] = []
     seen_uids: set[str] = set()
@@ -234,14 +378,21 @@ def load_browser_events(
             ORDER BY v.visit_time ASC, v.id ASC
             """
         ).fetchall()
+        actual_visit_ids = {int(row["visit_id"]) for row in visit_rows}
+        if actual_visit_ids != set(visit_map):
+            raise ValueError(
+                "SQLite visit ids and manifest visit mappings are not one-to-one"
+            )
+
         for row in visit_rows:
             visit_id = int(row["visit_id"])
             url_id = int(row["url_id"])
-            if visit_id not in visit_map:
+            event_uid, mapped_url_id = visit_map[visit_id]
+            if url_id != mapped_url_id:
                 raise ValueError(
-                    f"SQLite visit id {visit_id} has no manifest event_uid mapping"
+                    f"Manifest sqlite_url_id for {event_uid} ({mapped_url_id}) "
+                    f"conflicts with SQLite visit {visit_id} url id {url_id}"
                 )
-            event_uid = visit_map[visit_id]
             if event_uid in seen_uids:
                 raise ValueError(f"Duplicate browser event_uid: {event_uid}")
             seen_uids.add(event_uid)
@@ -269,12 +420,14 @@ def load_browser_events(
             ORDER BY start_time ASC, id ASC
             """
         ).fetchall()
+        actual_download_ids = {int(row["id"]) for row in download_rows}
+        if actual_download_ids != set(download_map):
+            raise ValueError(
+                "SQLite download ids and manifest download mappings are not one-to-one"
+            )
+
         for row in download_rows:
             download_id = int(row["id"])
-            if download_id not in download_map:
-                raise ValueError(
-                    f"SQLite download id {download_id} has no manifest event_uid mapping"
-                )
             event_uid = download_map[download_id]
             if event_uid in seen_uids:
                 raise ValueError(f"Duplicate browser event_uid: {event_uid}")
@@ -298,24 +451,43 @@ def load_browser_events(
                     received_bytes=int(row["received_bytes"]),
                 )
             )
+
+        url_count = conn.execute("SELECT COUNT(*) FROM urls").fetchone()[0]
+        visit_count = conn.execute("SELECT COUNT(*) FROM visits").fetchone()[0]
+        download_count = conn.execute("SELECT COUNT(*) FROM downloads").fetchone()[0]
     finally:
         conn.close()
+
+    counts = manifest["expected_counts"]
+    if require_int(counts.get("urls"), "expected_counts.urls") != url_count:
+        raise ValueError("SQLite urls count does not match expected_counts.urls")
+    if require_int(counts.get("visits"), "expected_counts.visits") != visit_count:
+        raise ValueError("SQLite visits count does not match expected_counts.visits")
+    if require_int(counts.get("downloads"), "expected_counts.downloads") != download_count:
+        raise ValueError(
+            "SQLite downloads count does not match expected_counts.downloads"
+        )
     return events
 
 
 def normalize_identity_events(raw_events: list[dict[str, Any]]) -> list[NormalizedEvent]:
     events: list[NormalizedEvent] = []
     for raw in raw_events:
+        new_device = None
+        if "new_device" in raw:
+            new_device = require_bool(raw["new_device"], f"{raw['event_uid']} new_device")
         events.append(
             NormalizedEvent(
-                event_uid=str(raw["event_uid"]),
-                timestamp_utc=parse_utc(str(raw["timestamp"])),
+                event_uid=require_nonblank_str(raw["event_uid"], "event_uid"),
+                timestamp_utc=parse_utc(raw["timestamp"]),
                 category="identity",
                 summary=str(raw.get("description") or raw["event_type"]),
-                user=str(raw["user"]),
-                source_ip=str(raw["source_ip"]),
-                event_type=str(raw["event_type"]),
-                new_device=bool(raw["new_device"]) if "new_device" in raw else None,
+                user=require_nonblank_str(raw["user"], "user"),
+                source_ip=require_nonblank_str(raw["source_ip"], "source_ip"),
+                event_type=require_nonblank_str(raw["event_type"], "event_type"),
+                new_device=new_device,
+                app=require_nonblank_str(raw["app"], "app"),
+                result=require_nonblank_str(raw["result"], "result"),
             )
         )
     return events
@@ -324,11 +496,11 @@ def normalize_identity_events(raw_events: list[dict[str, Any]]) -> list[Normaliz
 def normalize_user_report(report: dict[str, Any]) -> NormalizedEvent:
     text = f"{report['summary']}\n{report['description']}"
     return NormalizedEvent(
-        event_uid=str(report["event_uid"]),
-        timestamp_utc=parse_utc(str(report["timestamp"])),
+        event_uid=require_nonblank_str(report["event_uid"], "event_uid"),
+        timestamp_utc=parse_utc(report["timestamp"]),
         category="user_report",
         summary=str(report["summary"]),
-        user=str(report["reporter"]),
+        user=require_nonblank_str(report["reporter"], "reporter"),
         report_text=text,
     )
 
@@ -346,6 +518,16 @@ def is_allowlisted(host: str | None, allowlist: set[str]) -> bool:
 def verification_themed(title: str | None, url: str | None) -> bool:
     haystack = f"{title or ''} {url or ''}".lower()
     return "verify" in haystack or "verification" in haystack
+
+
+def sign_in_themed(title: str | None, url: str | None) -> bool:
+    haystack = f"{title or ''} {url or ''}".lower()
+    return (
+        "sign-in" in haystack
+        or "signin" in haystack
+        or "sign in" in haystack
+        or "/signin" in haystack
+    )
 
 
 def finding(
@@ -381,7 +563,11 @@ def analyze_events(
     identity = [e for e in events if e.category == "identity"]
     reports = [e for e in events if e.category == "user_report"]
 
-    allowlisted_visits = [e for e in visits if is_allowlisted(e.host, allowlist)]
+    allowlisted_sign_in_visits = [
+        e
+        for e in visits
+        if is_allowlisted(e.host, allowlist) and sign_in_themed(e.title, e.url)
+    ]
     non_allowlisted_visits = [
         e
         for e in visits
@@ -391,7 +577,7 @@ def analyze_events(
     findings: list[dict[str, Any]] = []
 
     # M002-R001: non-allowlisted verification-themed page after allowlisted sign-in
-    for corporate in allowlisted_visits:
+    for corporate in allowlisted_sign_in_visits:
         for non_allowlisted in non_allowlisted_visits:
             delta = non_allowlisted.timestamp_utc - corporate.timestamp_utc
             if timedelta(0) <= delta <= WINDOW_CORPORATE_TO_NON_ALLOWLISTED:
@@ -418,6 +604,8 @@ def analyze_events(
     for visit in non_allowlisted_visits:
         for download in downloads:
             if not download.host or is_allowlisted(download.host, allowlist):
+                continue
+            if download.host != visit.host:
                 continue
             delta = abs(download.timestamp_utc - visit.timestamp_utc)
             if delta <= WINDOW_DOWNLOAD_NEAR_VISIT:
@@ -446,6 +634,7 @@ def analyze_events(
         if e.event_type == "MFA_SUCCESS"
         and e.new_device is True
         and e.user == attributed_user
+        and e.result == "success"
     ]
     for mfa in mfa_successes:
         for visit in non_allowlisted_visits:
@@ -453,16 +642,23 @@ def analyze_events(
                 continue
             delta = abs(mfa.timestamp_utc - visit.timestamp_utc)
             if delta <= WINDOW_IDENTITY_NEAR_BROWSER:
-                support = sorted({visit.event_uid, mfa.event_uid})
-                # Include preceding challenge when present in window for richer support
+                support_events = [visit, mfa]
                 for challenge in identity:
                     if (
                         challenge.event_type == "MFA_CHALLENGE"
-                        and challenge.user == attributed_user
-                        and abs(challenge.timestamp_utc - mfa.timestamp_utc)
-                        <= WINDOW_IDENTITY_NEAR_BROWSER
+                        and challenge.user == mfa.user
+                        and challenge.source_ip == mfa.source_ip
+                        and challenge.app == mfa.app
+                        and challenge.timestamp_utc < mfa.timestamp_utc
                     ):
-                        support = sorted(set(support) | {challenge.event_uid})
+                        support_events.append(challenge)
+                support = [
+                    item.event_uid
+                    for item in sorted(
+                        support_events,
+                        key=lambda item: (item.timestamp_utc, item.event_uid),
+                    )
+                ]
                 findings.append(
                     finding(
                         "M002-R003",
@@ -506,9 +702,9 @@ def analyze_events(
                                 "User-initiated hardening after a suspicious-looking page, or a "
                                 "help-desk-directed reset, could produce the same sequence."
                             ),
-                        (
-                            "Account takeover or that the password change was attacker-driven."
-                        ),
+                            (
+                                "Account takeover or that the password change was attacker-driven."
+                            ),
                             "Review password-change initiator, session inventory, and mail notices.",
                         )
                     )
@@ -539,17 +735,14 @@ def analyze_events(
         ]
         if not related:
             continue
-        support = sorted({report.event_uid, *[item.event_uid for item in related]})
-        # Keep expected core IDs stable and readable
-        preferred = [
-            uid
-            for uid in ("BRW-002", "BRW-003", "ID-003", "RPT-001")
-            if uid in support
+        support_events = [*related, report]
+        support = [
+            item.event_uid
+            for item in sorted(
+                support_events,
+                key=lambda item: (item.timestamp_utc, item.event_uid),
+            )
         ]
-        if preferred:
-            # Include all related non-allowlisted/password/report IDs but order preferred first
-            remainder = [uid for uid in support if uid not in preferred]
-            support = preferred + remainder
         findings.append(
             finding(
                 "M002-R005",
@@ -681,9 +874,34 @@ def run_analysis(
 ) -> tuple[list[NormalizedEvent], list[dict[str, Any]], str]:
     manifest = load_manifest(manifest_path)
     browser_events = load_browser_events(history, manifest)
-    identity_events = normalize_identity_events(load_identity_events(identity))
-    user_report = normalize_user_report(load_user_report(report))
-    events = sort_events([*browser_events, *identity_events, user_report])
+    identity_raw = load_identity_events(identity)
+    identity_events = normalize_identity_events(identity_raw)
+    user_report_raw = load_user_report(report)
+    user_report = normalize_user_report(user_report_raw)
+
+    counts = manifest["expected_counts"]
+    expected_identity = require_int(
+        counts.get("identity_events"), "expected_counts.identity_events"
+    )
+    expected_reports = require_int(
+        counts.get("user_reports"), "expected_counts.user_reports"
+    )
+    if expected_identity != len(identity_events):
+        raise ValueError(
+            f"expected_counts.identity_events={expected_identity} does not match "
+            f"identity input count {len(identity_events)}"
+        )
+    if expected_reports != 1:
+        raise ValueError("expected_counts.user_reports must be 1 for this analyzer")
+
+    all_events = [*browser_events, *identity_events, user_report]
+    seen_uids: set[str] = set()
+    for event in all_events:
+        if event.event_uid in seen_uids:
+            raise ValueError(f"Duplicate event_uid across inputs: {event.event_uid}")
+        seen_uids.add(event.event_uid)
+
+    events = sort_events(all_events)
     findings = analyze_events(events, manifest)
     markdown = render_markdown(events, findings, manifest)
     return events, findings, markdown

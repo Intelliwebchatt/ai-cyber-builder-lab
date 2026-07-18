@@ -25,11 +25,12 @@
       "url": "https://accounts.example.test/security",
       "title": "Security settings",
       "visit_time_utc": "2026-08-12T15:46:05Z",
-      "transition": 1,
+      "transition": 0,
       "from_visit": 1,
       "typed_count": 0,
       "visit_count": 1,
-      "synthetic": true
+      "synthetic": true,
+      "transition_note": "Chromium LINK (0): navigated from BEN-BRW-001"
     }
   ]
 }

@@ -42,11 +42,14 @@ From this mission directory:
 python3 src/build_browser_fixture.py \
   --history-source data/source/browser_history.json \
   --downloads-source data/source/browser_downloads.json \
+  --manifest data/source/fixture-manifest.json \
   --output data/generated/History.sqlite \
   --overwrite
 ```
 
-ISO-8601 UTC timestamps in the JSON sources are canonical. The builder calculates WebKit/Chromium microseconds when writing SQLite. Record the printed Python and SQLite versions with evidence hashes; database bytes are not guaranteed identical across SQLite versions.
+ISO-8601 UTC timestamps in the JSON sources are canonical. The builder calculates WebKit/Chromium microseconds with integer day/second/microsecond arithmetic, validates source rows one-to-one against the manifest, and enforces `expected_counts`. Record the printed Python and SQLite versions with evidence hashes; database bytes are not guaranteed identical across SQLite versions.
+
+Chromium visit `transition` values follow core page-transition types: `0` = LINK, `1` = TYPED. Linked navigations (`from_visit != 0`, `typed_count = 0`) must use LINK.
 
 ## Run the starter analyzer
 

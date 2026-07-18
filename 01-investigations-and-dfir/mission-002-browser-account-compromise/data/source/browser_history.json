@@ -2,7 +2,8 @@
   "synthetic": true,
   "provenance": {
     "classification": "Repository-authored educational fixture",
-    "note": "Not collected from a real browser profile"
+    "note": "Not collected from a real browser profile",
+    "chromium_transition": "Core values: 0=LINK, 1=TYPED (ui/base/page_transition_types.h). BRW-001 is TYPED; BRW-002 and BRW-004 are LINK navigations via from_visit."
   },
   "visits": [
     {
@@ -25,11 +26,12 @@
       "url": "https://accounts-example.test/account/verify",
       "title": "Verify your account",
       "visit_time_utc": "2026-08-12T15:42:31Z",
-      "transition": 1,
+      "transition": 0,
       "from_visit": 1,
       "typed_count": 0,
       "visit_count": 1,
-      "synthetic": true
+      "synthetic": true,
+      "transition_note": "Chromium LINK (0): navigated from BRW-001; not independently typed"
     },
     {
       "event_uid": "BRW-004",
@@ -38,11 +40,12 @@
       "url": "https://accounts.example.test/security",
       "title": "Security settings",
       "visit_time_utc": "2026-08-12T15:46:05Z",
-      "transition": 1,
+      "transition": 0,
       "from_visit": 2,
       "typed_count": 0,
       "visit_count": 1,
-      "synthetic": true
+      "synthetic": true,
+      "transition_note": "Chromium LINK (0): navigated from BRW-002; not independently typed"
     }
   ]
 }

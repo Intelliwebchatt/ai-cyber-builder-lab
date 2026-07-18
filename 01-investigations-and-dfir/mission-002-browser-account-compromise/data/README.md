@@ -20,9 +20,12 @@ The tracked manifest does not store mutable hashes. Evidence hashes are recorded
 python3 src/build_browser_fixture.py \
   --history-source data/source/browser_history.json \
   --downloads-source data/source/browser_downloads.json \
+  --manifest data/source/fixture-manifest.json \
   --output data/generated/History.sqlite \
   --overwrite
 ```
+
+The builder requires `--manifest` so source `event_uid` / `sqlite_*_id` values stay bound one-to-one to the immutable mapping and `expected_counts`. Visit `transition` values use Chromium core types (`0` LINK, `1` TYPED).
 
 ## Provenance
 
