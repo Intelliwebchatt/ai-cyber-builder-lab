@@ -1,8 +1,9 @@
 # Mission 001: Phishing and PowerShell investigation
 
-**Status:** Scaffolded, not yet completed  
+**Status:** Completed  
 **Type:** Defensive investigation using synthetic evidence  
-**Primary roles:** SOC analyst, incident responder, digital-forensics analyst
+**Primary roles:** SOC analyst, incident responder, digital-forensics analyst  
+**Analyst:** Shane Lockhart
 
 ## Scenario
 

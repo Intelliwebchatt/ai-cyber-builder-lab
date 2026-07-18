@@ -148,7 +148,7 @@ This repository also hosts a six-track cybersecurity career lab. **SignalTrace**
 
 ### Mission 001
 
-[Mission 001: Phishing and PowerShell investigation](01-investigations-and-dfir/mission-001-phishing-powershell/) — **Scaffolded, not yet completed.** Synthetic dataset, starter analyzer, tests, and case-file worksheets are present; the repository owner still needs to complete the investigation in their own words.
+[Mission 001: Phishing and PowerShell investigation](01-investigations-and-dfir/mission-001-phishing-powershell/) — **Completed.** Synthetic dataset, starter analyzer, tests, evidence log, timeline, indicator analysis, ATT&CK map, containment/remediation plan, and executive report are present; investigative judgments were approved by the repository owner, with compromise not confirmed from the supplied evidence.
 
 ### Degree, certification, evidence, and safety
 
