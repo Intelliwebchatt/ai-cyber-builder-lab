@@ -141,6 +141,64 @@ def validate_transition(visit: dict[str, Any]) -> None:
         )
 
 
+def validate_url_id_consistency(visits: list[dict[str, Any]]) -> None:
+    """Repeated sqlite_url_id values must represent the same source URL."""
+    url_by_id: dict[int, str] = {}
+    owner_by_id: dict[int, str] = {}
+    for visit in visits:
+        event_uid = require_nonblank_str(visit.get("event_uid"), "Visit event_uid")
+        url_id = require_int(visit.get("sqlite_url_id"), f"{event_uid} sqlite_url_id")
+        url = require_nonblank_str(visit.get("url"), f"{event_uid} url")
+        if url_id in url_by_id and url_by_id[url_id] != url:
+            raise ValueError(
+                f"Conflicting reuse of sqlite_url_id {url_id}: "
+                f"{owner_by_id[url_id]} has {url_by_id[url_id]!r}, "
+                f"{event_uid} has {url!r}"
+            )
+        url_by_id[url_id] = url
+        owner_by_id[url_id] = event_uid
+
+
+def validate_from_visit_references(visits: list[dict[str, Any]]) -> None:
+    """Nonzero from_visit must reference an earlier, distinct existing visit."""
+    by_visit_id: dict[int, dict[str, Any]] = {}
+    for visit in visits:
+        event_uid = require_nonblank_str(visit.get("event_uid"), "Visit event_uid")
+        visit_id = require_int(
+            visit.get("sqlite_visit_id"), f"{event_uid} sqlite_visit_id"
+        )
+        if visit_id in by_visit_id:
+            raise ValueError(f"Duplicate sqlite_visit_id: {visit_id}")
+        by_visit_id[visit_id] = visit
+
+    for visit in visits:
+        event_uid = require_nonblank_str(visit.get("event_uid"), "Visit event_uid")
+        visit_id = require_int(
+            visit.get("sqlite_visit_id"), f"{event_uid} sqlite_visit_id"
+        )
+        from_visit = require_int(visit.get("from_visit"), f"{event_uid} from_visit")
+        if from_visit == 0:
+            continue
+        if from_visit == visit_id:
+            raise ValueError(
+                f"Visit {event_uid}: from_visit cannot reference itself ({visit_id})"
+            )
+        if from_visit not in by_visit_id:
+            raise ValueError(
+                f"Visit {event_uid}: dangling from_visit={from_visit} "
+                f"(no matching sqlite_visit_id)"
+            )
+        prior = by_visit_id[from_visit]
+        prior_uid = require_nonblank_str(prior.get("event_uid"), "prior event_uid")
+        current_time = parse_utc(str(visit["visit_time_utc"]))
+        prior_time = parse_utc(str(prior["visit_time_utc"]))
+        if prior_time >= current_time:
+            raise ValueError(
+                f"Visit {event_uid}: from_visit={from_visit} ({prior_uid}) must be "
+                f"chronologically earlier than this visit"
+            )
+
+
 def validate_sources_against_manifest(
     history: dict[str, Any],
     downloads: dict[str, Any],
@@ -189,6 +247,9 @@ def validate_sources_against_manifest(
         seen_url_ids.add(url_id)
         source_visit_keys[event_uid] = (url_id, visit_id)
         validate_transition(visit)
+
+    validate_url_id_consistency(visits)
+    validate_from_visit_references(visits)
 
     source_download_keys: dict[str, int] = {}
     seen_download_ids: set[int] = set()
@@ -377,6 +438,8 @@ def build_database(
             validate_transition(visit)
         for index, download in enumerate(download_rows):
             require_object(download, f"downloads[{index}]")
+        validate_url_id_consistency(visits)
+        validate_from_visit_references(visits)
 
     output.parent.mkdir(parents=True, exist_ok=True)
     if output.exists():
@@ -385,7 +448,7 @@ def build_database(
     conn = sqlite3.connect(output)
     try:
         create_schema(conn)
-        urls_written: set[int] = set()
+        urls_written: dict[int, str] = {}
         seen_visit_ids: set[int] = set()
         seen_download_ids: set[int] = set()
         seen_uids: set[str] = set()
@@ -421,7 +484,7 @@ def build_database(
                 raise ValueError(f"Duplicate sqlite_visit_id: {visit_id}")
             seen_visit_ids.add(visit_id)
             validate_transition(visit)
-            require_nonblank_str(visit["url"], f"{event_uid} url")
+            url = require_nonblank_str(visit["url"], f"{event_uid} url")
             require_nonblank_str(visit["title"], f"{event_uid} title")
             webkit_time = utc_to_webkit(str(visit["visit_time_utc"]))
 
@@ -434,15 +497,21 @@ def build_database(
                     """,
                     (
                         url_id,
-                        visit["url"],
+                        url,
                         visit["title"],
                         require_int(visit["visit_count"], f"{event_uid} visit_count"),
                         require_int(visit["typed_count"], f"{event_uid} typed_count"),
                         webkit_time,
                     ),
                 )
-                urls_written.add(url_id)
+                urls_written[url_id] = url
             else:
+                if urls_written[url_id] != url:
+                    raise ValueError(
+                        f"Conflicting reuse of sqlite_url_id {url_id}: "
+                        f"existing URL {urls_written[url_id]!r}, "
+                        f"{event_uid} has {url!r}"
+                    )
                 conn.execute(
                     """
                     UPDATE urls

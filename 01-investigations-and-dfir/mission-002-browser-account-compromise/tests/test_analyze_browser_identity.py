@@ -437,6 +437,129 @@ class AnalyzeBrowserIdentityTests(unittest.TestCase):
         self.assertEqual(1, len(r003))
         self.assertEqual(["BRW-VERIFY", "ID-MFA"], r003[0]["evidence"])
 
+    def test_r003_ignores_stale_mfa_challenge(self):
+        visit = ANALYZER.NormalizedEvent(
+            event_uid="BRW-VERIFY",
+            timestamp_utc=ANALYZER.parse_utc("2026-08-12T15:42:31Z"),
+            category="browser_visit",
+            summary="verify",
+            host="accounts-example.test",
+            url="https://accounts-example.test/account/verify",
+            title="Verify your account",
+            user="jordan.lee@example.test",
+        )
+        mfa = ANALYZER.NormalizedEvent(
+            event_uid="ID-MFA",
+            timestamp_utc=ANALYZER.parse_utc("2026-08-12T15:44:47Z"),
+            category="identity",
+            summary="mfa",
+            user="jordan.lee@example.test",
+            source_ip="198.51.100.77",
+            event_type="MFA_SUCCESS",
+            new_device=True,
+            app="WebPortal",
+            result="success",
+        )
+        stale_challenge = ANALYZER.NormalizedEvent(
+            event_uid="ID-CH-STALE",
+            timestamp_utc=ANALYZER.parse_utc("2026-01-01T00:00:00Z"),
+            category="identity",
+            summary="stale challenge",
+            user="jordan.lee@example.test",
+            source_ip="198.51.100.77",
+            event_type="MFA_CHALLENGE",
+            new_device=True,
+            app="WebPortal",
+            result="challenge_required",
+        )
+        manifest = ANALYZER.load_manifest(CASE_SOURCE / "fixture-manifest.json")
+        findings = ANALYZER.analyze_events([visit, mfa, stale_challenge], manifest)
+        r003 = [item for item in findings if item["rule_id"] == "M002-R003"]
+        self.assertEqual(1, len(r003))
+        self.assertEqual(["BRW-VERIFY", "ID-MFA"], r003[0]["evidence"])
+
+    def test_r003_ignores_wrong_result_mfa_challenge(self):
+        visit = ANALYZER.NormalizedEvent(
+            event_uid="BRW-VERIFY",
+            timestamp_utc=ANALYZER.parse_utc("2026-08-12T15:42:31Z"),
+            category="browser_visit",
+            summary="verify",
+            host="accounts-example.test",
+            url="https://accounts-example.test/account/verify",
+            title="Verify your account",
+            user="jordan.lee@example.test",
+        )
+        mfa = ANALYZER.NormalizedEvent(
+            event_uid="ID-MFA",
+            timestamp_utc=ANALYZER.parse_utc("2026-08-12T15:44:47Z"),
+            category="identity",
+            summary="mfa",
+            user="jordan.lee@example.test",
+            source_ip="198.51.100.77",
+            event_type="MFA_SUCCESS",
+            new_device=True,
+            app="WebPortal",
+            result="success",
+        )
+        wrong_result = ANALYZER.NormalizedEvent(
+            event_uid="ID-CH-WRONG",
+            timestamp_utc=ANALYZER.parse_utc("2026-08-12T15:44:19Z"),
+            category="identity",
+            summary="challenge with wrong result",
+            user="jordan.lee@example.test",
+            source_ip="198.51.100.77",
+            event_type="MFA_CHALLENGE",
+            new_device=True,
+            app="WebPortal",
+            result="success",
+        )
+        manifest = ANALYZER.load_manifest(CASE_SOURCE / "fixture-manifest.json")
+        findings = ANALYZER.analyze_events([visit, mfa, wrong_result], manifest)
+        r003 = [item for item in findings if item["rule_id"] == "M002-R003"]
+        self.assertEqual(1, len(r003))
+        self.assertEqual(["BRW-VERIFY", "ID-MFA"], r003[0]["evidence"])
+
+    def test_r004_requires_successful_password_change(self):
+        visit = ANALYZER.NormalizedEvent(
+            event_uid="BRW-VERIFY",
+            timestamp_utc=ANALYZER.parse_utc("2026-08-12T15:42:31Z"),
+            category="browser_visit",
+            summary="verify",
+            host="accounts-example.test",
+            url="https://accounts-example.test/account/verify",
+            title="Verify your account",
+            user="jordan.lee@example.test",
+        )
+        mfa = ANALYZER.NormalizedEvent(
+            event_uid="ID-MFA",
+            timestamp_utc=ANALYZER.parse_utc("2026-08-12T15:44:47Z"),
+            category="identity",
+            summary="mfa",
+            user="jordan.lee@example.test",
+            source_ip="198.51.100.77",
+            event_type="MFA_SUCCESS",
+            new_device=True,
+            app="WebPortal",
+            result="success",
+        )
+        failed_password = ANALYZER.NormalizedEvent(
+            event_uid="ID-PW-FAIL",
+            timestamp_utc=ANALYZER.parse_utc("2026-08-12T15:45:12Z"),
+            category="identity",
+            summary="failed password change",
+            user="jordan.lee@example.test",
+            source_ip="198.51.100.77",
+            event_type="PASSWORD_CHANGE",
+            new_device=True,
+            app="WebPortal",
+            result="failure",
+        )
+        manifest = ANALYZER.load_manifest(CASE_SOURCE / "fixture-manifest.json")
+        findings = ANALYZER.analyze_events([visit, mfa, failed_password], manifest)
+        self.assertEqual(
+            [], [item for item in findings if item["rule_id"] == "M002-R004"]
+        )
+
     def test_r005_orders_evidence_by_chronology_and_stable_id(self):
         """Generic IDs must order by timestamp then event_uid, not hard-coded case IDs."""
         events = [

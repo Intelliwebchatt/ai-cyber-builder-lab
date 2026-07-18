@@ -644,12 +644,16 @@ def analyze_events(
             if delta <= WINDOW_IDENTITY_NEAR_BROWSER:
                 support_events = [visit, mfa]
                 for challenge in identity:
+                    challenge_delta = mfa.timestamp_utc - challenge.timestamp_utc
                     if (
                         challenge.event_type == "MFA_CHALLENGE"
+                        and challenge.result == "challenge_required"
                         and challenge.user == mfa.user
                         and challenge.source_ip == mfa.source_ip
                         and challenge.app == mfa.app
-                        and challenge.timestamp_utc < mfa.timestamp_utc
+                        and timedelta(0)
+                        <= challenge_delta
+                        <= WINDOW_IDENTITY_NEAR_BROWSER
                     ):
                         support_events.append(challenge)
                 support = [
@@ -682,7 +686,9 @@ def analyze_events(
     password_changes = [
         e
         for e in identity
-        if e.event_type == "PASSWORD_CHANGE" and e.user == attributed_user
+        if e.event_type == "PASSWORD_CHANGE"
+        and e.user == attributed_user
+        and e.result == "success"
     ]
     for password in password_changes:
         for mfa in mfa_successes:

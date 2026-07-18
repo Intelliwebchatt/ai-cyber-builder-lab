@@ -160,6 +160,81 @@ class BuildBrowserFixtureTests(unittest.TestCase):
                     manifest_path=CASE_SOURCE / "fixture-manifest.json",
                 )
 
+    def test_rejects_conflicting_sqlite_url_id_reuse(self):
+        with tempfile.TemporaryDirectory() as directory:
+            history = json.loads(
+                (CASE_SOURCE / "browser_history.json").read_text(encoding="utf-8")
+            )
+            manifest = json.loads(
+                (CASE_SOURCE / "fixture-manifest.json").read_text(encoding="utf-8")
+            )
+            # Reuse URL id 1 for BRW-002 while keeping a different URL.
+            history["visits"][1]["sqlite_url_id"] = 1
+            manifest["event_mappings"]["visits"][1]["sqlite_url_id"] = 1
+            manifest["expected_counts"]["urls"] = 2
+            history_path = Path(directory) / "browser_history.json"
+            manifest_path = Path(directory) / "fixture-manifest.json"
+            history_path.write_text(json.dumps(history), encoding="utf-8")
+            manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "Conflicting reuse of sqlite_url_id"):
+                BUILDER.build_database(
+                    history_source=history_path,
+                    downloads_source=CASE_SOURCE / "browser_downloads.json",
+                    output=Path(directory) / "History.sqlite",
+                    manifest_path=manifest_path,
+                )
+
+    def test_rejects_dangling_from_visit(self):
+        with tempfile.TemporaryDirectory() as directory:
+            history = json.loads(
+                (CASE_SOURCE / "browser_history.json").read_text(encoding="utf-8")
+            )
+            history["visits"][1]["from_visit"] = 999
+            history_path = Path(directory) / "browser_history.json"
+            history_path.write_text(json.dumps(history), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "dangling from_visit=999"):
+                BUILDER.build_database(
+                    history_source=history_path,
+                    downloads_source=CASE_SOURCE / "browser_downloads.json",
+                    output=Path(directory) / "History.sqlite",
+                    manifest_path=CASE_SOURCE / "fixture-manifest.json",
+                )
+
+    def test_rejects_self_referencing_from_visit(self):
+        with tempfile.TemporaryDirectory() as directory:
+            history = json.loads(
+                (CASE_SOURCE / "browser_history.json").read_text(encoding="utf-8")
+            )
+            history["visits"][1]["from_visit"] = history["visits"][1]["sqlite_visit_id"]
+            history_path = Path(directory) / "browser_history.json"
+            history_path.write_text(json.dumps(history), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "from_visit cannot reference itself"):
+                BUILDER.build_database(
+                    history_source=history_path,
+                    downloads_source=CASE_SOURCE / "browser_downloads.json",
+                    output=Path(directory) / "History.sqlite",
+                    manifest_path=CASE_SOURCE / "fixture-manifest.json",
+                )
+
+    def test_rejects_future_from_visit(self):
+        with tempfile.TemporaryDirectory() as directory:
+            history = json.loads(
+                (CASE_SOURCE / "browser_history.json").read_text(encoding="utf-8")
+            )
+            # Point BRW-001 at a chronologically later visit.
+            history["visits"][0]["from_visit"] = 2
+            history["visits"][0]["transition"] = 0
+            history["visits"][0]["typed_count"] = 0
+            history_path = Path(directory) / "browser_history.json"
+            history_path.write_text(json.dumps(history), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "chronologically earlier"):
+                BUILDER.build_database(
+                    history_source=history_path,
+                    downloads_source=CASE_SOURCE / "browser_downloads.json",
+                    output=Path(directory) / "History.sqlite",
+                    manifest_path=CASE_SOURCE / "fixture-manifest.json",
+                )
+
 
 if __name__ == "__main__":
     unittest.main()
