@@ -1,9 +1,9 @@
 # Case brief
 
 **Case ID:** M001-2026  
-**Status:** Open training scenario  
+**Status:** Investigation complete for synthetic training scenario; compromise not confirmed  
 **Classification:** Synthetic educational data  
-**Analyst:** To be completed by repository owner
+**Analyst:** Shane Lockhart
 
 ## Initial report
 
@@ -16,6 +16,8 @@ At 14:19 UTC on July 15, 2026, a fictional employee reported opening an unexpect
 3. What additional evidence is required?
 4. What immediate containment would be proportionate?
 5. What controls could prevent or detect a similar event?
+
+Answers are recorded in the evidence log, timeline, indicator analysis, ATT&CK map, containment and remediation plan, and executive report. All conclusions cite event or evidence IDs and follow the owner-approved Phase B judgments.
 
 ## Known limitations
 
