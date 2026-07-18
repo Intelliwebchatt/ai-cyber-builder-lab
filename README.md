@@ -130,3 +130,31 @@ Optional web:
 - Unknown is an acceptable answer
 - Confidence is not proof
 - No automatic side effects on URLs or domains in Phase 1
+
+## Cybersecurity Portfolio
+
+This repository also hosts a six-track cybersecurity career lab. **SignalTrace** (this application) is an active portfolio project under Application Security and AI Security and Governance. The career tracks below hold missions, evidence standards, and roadmap documentation; they do not replace the SignalTrace app at the repository root.
+
+### Career tracks
+
+| Track | Focus |
+|---|---|
+| [Investigations and DFIR](01-investigations-and-dfir/) | Evidence handling, timelines, host artifacts, forensic reasoning, and defensible reporting |
+| [SOC and incident response](02-soc-and-incident-response/) | Log analysis, alert triage, detection rules, containment, recovery, and lessons learned |
+| [CJIS and public-safety security](03-cjis-and-public-safety-security/) | Access control, auditability, sensitive-data handling, incident planning, and operational continuity |
+| [OT and critical infrastructure](04-ot-and-critical-infrastructure/) | Safety-aware threat modeling, segmentation, monitoring, resilience, and recovery |
+| [Application security](05-application-security/) | Secure design, API protection, testing, remediation, and secure software delivery — includes SignalTrace |
+| [AI security and governance](06-ai-security-and-governance/) | AI threat modeling, prompt-injection testing, data protection, governance, and risk decisions — includes SignalTrace |
+
+### Mission 001
+
+[Mission 001: Phishing and PowerShell investigation](01-investigations-and-dfir/mission-001-phishing-powershell/) — **Scaffolded, not yet completed.** Synthetic dataset, starter analyzer, tests, and case-file worksheets are present; the repository owner still needs to complete the investigation in their own words.
+
+### Degree, certification, evidence, and safety
+
+- [Degree, project, and certification map](docs/DEGREE_CERT_PROJECT_MAP.md)
+- [Certification roadmap](docs/CERTIFICATION_ROADMAP.md)
+- [Career evidence map](docs/CAREER_EVIDENCE_MAP.md)
+- [Ethics and safety policy](docs/ETHICS_AND_SAFETY.md)
+- [Project template](docs/PROJECT_TEMPLATE.md)
+- [Repository guidance for AI-assisted work](AGENTS.md)

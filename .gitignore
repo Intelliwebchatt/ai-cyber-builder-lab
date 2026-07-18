@@ -8,11 +8,14 @@ build/
 
 # Environment secrets
 .env
+.env.*
+!.env.example
 .env.local
 .env.*.local
 apps/server/.env
 
 # Logs and debug
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -29,3 +32,19 @@ Thumbs.db
 # Test / coverage
 coverage/
 .nyc_output/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# Generated mission reports (any depth)
+reports/generated-*.md
+**/reports/generated-*.md
+
+# Secrets and private evidence
+private/
+secrets/
+evidence/raw-private/
