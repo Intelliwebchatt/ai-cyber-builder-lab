@@ -44,6 +44,9 @@ venv/
 reports/generated-*.md
 **/reports/generated-*.md
 
+# Mission 002 generated SQLite derivative evidence
+01-investigations-and-dfir/mission-002-browser-account-compromise/data/generated/
+
 # Secrets and private evidence
 private/
 secrets/

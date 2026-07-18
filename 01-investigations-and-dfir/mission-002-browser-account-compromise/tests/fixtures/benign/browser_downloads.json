@@ -1,0 +1,28 @@
+{
+  "synthetic": true,
+  "provenance": {
+    "classification": "Test-only benign fixture",
+    "note": "Allowlisted host download metadata only; not case evidence"
+  },
+  "downloads": [
+    {
+      "event_uid": "BEN-BRW-003",
+      "sqlite_download_id": 1,
+      "guid": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+      "current_path": "C:\\Users\\jordan.lee\\Downloads\\leave-policy.pdf",
+      "target_path": "C:\\Users\\jordan.lee\\Downloads\\leave-policy.pdf",
+      "tab_url": "https://accounts.example.test/security",
+      "tab_referrer_url": "https://accounts.example.test/signin",
+      "mime_type": "application/pdf",
+      "original_mime_type": "application/pdf",
+      "total_bytes": 4096,
+      "received_bytes": 4096,
+      "start_time_utc": "2026-08-12T15:46:20Z",
+      "end_time_utc": "2026-08-12T15:46:20Z",
+      "danger_type": 0,
+      "interrupt_reason": 0,
+      "payload_included": false,
+      "synthetic": true
+    }
+  ]
+}
