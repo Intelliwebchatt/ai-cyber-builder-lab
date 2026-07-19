@@ -235,6 +235,43 @@ class BuildBrowserFixtureTests(unittest.TestCase):
                     manifest_path=CASE_SOURCE / "fixture-manifest.json",
                 )
 
+    def test_rejects_missing_timestamp_on_linked_current_visit(self):
+        with tempfile.TemporaryDirectory() as directory:
+            history = json.loads(
+                (CASE_SOURCE / "browser_history.json").read_text(encoding="utf-8")
+            )
+            del history["visits"][1]["visit_time_utc"]
+            history_path = Path(directory) / "browser_history.json"
+            history_path.write_text(json.dumps(history), encoding="utf-8")
+            with self.assertRaises(ValueError) as ctx:
+                BUILDER.build_database(
+                    history_source=history_path,
+                    downloads_source=CASE_SOURCE / "browser_downloads.json",
+                    output=Path(directory) / "History.sqlite",
+                    manifest_path=CASE_SOURCE / "fixture-manifest.json",
+                )
+            self.assertIn("visit_time_utc", str(ctx.exception))
+            self.assertNotIsInstance(ctx.exception, KeyError)
+
+    def test_rejects_missing_timestamp_on_referenced_prior_visit(self):
+        with tempfile.TemporaryDirectory() as directory:
+            history = json.loads(
+                (CASE_SOURCE / "browser_history.json").read_text(encoding="utf-8")
+            )
+            # BRW-002 references visit 1; omit the prior visit timestamp.
+            del history["visits"][0]["visit_time_utc"]
+            history_path = Path(directory) / "browser_history.json"
+            history_path.write_text(json.dumps(history), encoding="utf-8")
+            with self.assertRaises(ValueError) as ctx:
+                BUILDER.build_database(
+                    history_source=history_path,
+                    downloads_source=CASE_SOURCE / "browser_downloads.json",
+                    output=Path(directory) / "History.sqlite",
+                    manifest_path=CASE_SOURCE / "fixture-manifest.json",
+                )
+            self.assertIn("visit_time_utc", str(ctx.exception))
+            self.assertNotIsInstance(ctx.exception, KeyError)
+
 
 if __name__ == "__main__":
     unittest.main()

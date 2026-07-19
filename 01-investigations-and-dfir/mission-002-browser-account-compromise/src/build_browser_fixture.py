@@ -190,8 +190,16 @@ def validate_from_visit_references(visits: list[dict[str, Any]]) -> None:
             )
         prior = by_visit_id[from_visit]
         prior_uid = require_nonblank_str(prior.get("event_uid"), "prior event_uid")
-        current_time = parse_utc(str(visit["visit_time_utc"]))
-        prior_time = parse_utc(str(prior["visit_time_utc"]))
+        current_time = parse_utc(
+            require_nonblank_str(
+                visit.get("visit_time_utc"), f"{event_uid} visit_time_utc"
+            )
+        )
+        prior_time = parse_utc(
+            require_nonblank_str(
+                prior.get("visit_time_utc"), f"{prior_uid} visit_time_utc"
+            )
+        )
         if prior_time >= current_time:
             raise ValueError(
                 f"Visit {event_uid}: from_visit={from_visit} ({prior_uid}) must be "
