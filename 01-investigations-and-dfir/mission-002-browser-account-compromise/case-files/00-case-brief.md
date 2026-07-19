@@ -1,7 +1,7 @@
 # Case brief
 
 **Case ID:** M002-2026  
-**Status:** Owner-approved case-file draft for synthetic training scenario; mission not yet marked completed  
+**Status:** Investigation complete for synthetic training scenario; compromise not confirmed  
 **Classification:** Synthetic educational data  
 **Analyst:** Shane Lockhart  
 **Disposition (owner-approved):** Suspected account compromise — not confirmed
@@ -20,7 +20,7 @@ Questions answered in case files 01–08 use only repository-authored synthetic 
 4. What immediate containment would be proportionate?
 5. What controls could prevent or detect a similar event?
 
-Answers are recorded in the evidence/hash log, browser inventory, combined timeline, identity correlation, hypotheses, ATT&CK hypothesis map, containment plan, and executive report. Case file 09 (owner reflection and AI disclosure) remains deferred.
+Answers are recorded in the evidence/hash log, browser inventory, combined timeline, identity correlation, hypotheses, ATT&CK hypothesis map, containment plan, and executive report. Case file 09 records the owner reflection and AI-assistance disclosure.
 
 ## Known limitations
 

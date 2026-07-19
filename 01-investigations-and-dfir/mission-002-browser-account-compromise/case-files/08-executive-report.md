@@ -1,6 +1,6 @@
 # Executive incident report
 
-**Status:** Owner-approved draft for synthetic training scenario — mission not yet marked completed  
+**Status:** Complete for synthetic training scenario  
 **Audience:** Business and security leadership  
 **Case ID:** M002-2026  
 **Analyst:** Shane Lockhart  
@@ -46,7 +46,7 @@ Recommended decision: treat this as a suspected account-compromise investigation
 2. Built ignored synthetic History database (**E-006**) and ran Mission 002 unit tests.
 3. Generated ignored analyzer lead report (**E-007**) with rules **M002-R001**–**M002-R005**.
 4. Calculated and rechecked two-pass SHA-256 hashes for **E-001**–**E-007** during the lab validation session on **2026-07-19** (not forensic acquisition time; scenario events are **2026-08-12**).
-5. Drafted case files 00–08 using Shane-approved judgments only. Case file 09 remains untouched pending owner reflection.
+5. Drafted case files 00–08 using Shane-approved judgments only, then recorded the owner reflection and AI-assistance disclosure in case file 09.
 
 ### Recommended for the synthetic scenario (not executed against a real system)
 
@@ -90,4 +90,4 @@ Recommended decision: treat this as a suspected account-compromise investigation
 - Missing mail/message artifact, DNS/proxy telemetry, endpoint file open/execute proof, and IT branding-test source records.
 - Analyzer output (**E-007**) is an investigative lead set, not a conclusion.
 - ATT&CK mappings are hypothesis-only with low confidence and stated missing confirmations.
-- Mission status remains **scaffolded, not yet completed** until owner reflection (case file 09) and supervising completion gates are finished.
+- Mission status is **Completed**, with owner reflection and AI-assistance disclosure recorded in case file 09.

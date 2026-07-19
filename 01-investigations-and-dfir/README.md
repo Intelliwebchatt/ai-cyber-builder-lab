@@ -14,5 +14,5 @@ This track develops the technical evidence needed for cybercrime, digital-forens
 ## Missions
 
 1. [Mission 001: Phishing and PowerShell investigation](mission-001-phishing-powershell/), completed
-2. [Mission 002: Browser artifacts and suspected account compromise](mission-002-browser-account-compromise/), scaffolded, not yet completed
+2. [Mission 002: Browser artifacts and suspected account compromise](mission-002-browser-account-compromise/), completed
 3. Disk-image triage and evidence timeline, planned
