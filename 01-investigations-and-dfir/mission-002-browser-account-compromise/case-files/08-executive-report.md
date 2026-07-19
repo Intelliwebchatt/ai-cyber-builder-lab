@@ -28,7 +28,7 @@ Recommended decision: treat this as a suspected account-compromise investigation
 
 **Confirmed impact**
 
-- Suspicious browser and identity correlation requiring high-priority investigation and proportionate containment for the synthetic account/host pair (events BRW-001–BRW-004, ID-001–ID-003, RPT-001; evidence **E-001**–**E-007**).
+- No business impact is confirmed from the supplied synthetic evidence.
 
 **Potential impact only (unconfirmed)**
 

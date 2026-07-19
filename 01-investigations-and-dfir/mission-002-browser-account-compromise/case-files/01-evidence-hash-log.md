@@ -2,7 +2,7 @@
 
 Record hashes using a locally available SHA-256 tool. Do not copy a hash from AI input alone. Perform two passes and confirm they match. Values below were produced by local `sha256sum` during the lab validation session and rechecked during case-file drafting validation.
 
-| Evidence ID | Item | Source and provenance | Collected UTC | SHA-256 | Transformations | Analyst notes |
+| Evidence ID | Item | Source and provenance | Lab validation UTC | SHA-256 | Transformations | Analyst notes |
 |---|---|---|---|---|---|---|
 | E-001 | `data/source/browser_history.json` | Repository-provided synthetic fixture | 2026-07-19 03:18:12 UTC (lab validation session) | `9f0177d14038f849dc9c9501d21b904646aba01ca05f0a856d6719b063893b2d` | None | Primary tracked source; scenario visit times are 2026-08-12 |
 | E-002 | `data/source/browser_downloads.json` | Repository-provided synthetic fixture | 2026-07-19 03:18:12 UTC (lab validation session) | `ddcae47884aee17c8c3014e8ae5dce160d22ac495413b4d745cf665823acf113` | None | Metadata only; no payload |
@@ -15,7 +15,7 @@ Record hashes using a locally available SHA-256 tool. Do not copy a hash from AI
 ## Integrity verification
 
 - **Working directory (repository-relative):** `01-investigations-and-dfir/mission-002-browser-account-compromise`
-- **Collection-session timestamp (UTC):** 2026-07-19 03:18:12 UTC through 2026-07-19 03:18:24 UTC
+- **Lab validation-session timestamp (UTC):** 2026-07-19 03:18:12 UTC through 2026-07-19 03:18:24 UTC
 - **Timestamp meaning:** These times are the **laboratory validation-session** timestamps. They are **not** forensic acquisition times. Synthetic scenario events are dated **2026-08-12**.
 - **Python version:** 3.12.3
 - **SQLite version (`sqlite3.sqlite_version`):** 3.45.1
