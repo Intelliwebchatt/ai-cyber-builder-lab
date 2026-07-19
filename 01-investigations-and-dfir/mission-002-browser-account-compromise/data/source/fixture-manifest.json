@@ -1,0 +1,66 @@
+{
+  "schema_version": "1.0.0",
+  "mission_id": "M002-2026",
+  "synthetic": true,
+  "provenance": {
+    "classification": "Repository-authored educational fixture",
+    "organization": "Example Civic Services",
+    "note": "Tracked text sources are primary synthetic artifacts; generated SQLite is derivative lab evidence"
+  },
+  "official_host_allowlist": [
+    "accounts.example.test"
+  ],
+  "case_attribution": {
+    "host": "WS-217",
+    "profile_label": "WS-217-chromium-synthetic",
+    "asserted_source_path": "C:\\Users\\jordan.lee\\AppData\\Local\\Chromium\\User Data\\Default\\History",
+    "attributed_user": "jordan.lee@example.test",
+    "windows_account": "EXAMPLE\\jordan.lee",
+    "attribution_note": "Lab-asserted profile-to-user attribution for correlation practice. The browser History database itself does not authenticate the human user at the keyboard."
+  },
+  "expected_counts": {
+    "urls": 3,
+    "visits": 3,
+    "downloads": 1,
+    "identity_events": 3,
+    "user_reports": 1
+  },
+  "event_mappings": {
+    "visits": [
+      {
+        "event_uid": "BRW-001",
+        "sqlite_url_id": 1,
+        "sqlite_visit_id": 1
+      },
+      {
+        "event_uid": "BRW-002",
+        "sqlite_url_id": 2,
+        "sqlite_visit_id": 2
+      },
+      {
+        "event_uid": "BRW-004",
+        "sqlite_url_id": 3,
+        "sqlite_visit_id": 3
+      }
+    ],
+    "downloads": [
+      {
+        "event_uid": "BRW-003",
+        "sqlite_download_id": 1
+      }
+    ]
+  },
+  "correlation_windows_minutes": {
+    "WINDOW_CORPORATE_TO_NON_ALLOWLISTED": 15,
+    "WINDOW_DOWNLOAD_NEAR_VISIT": 15,
+    "WINDOW_IDENTITY_NEAR_BROWSER": 20,
+    "WINDOW_PASSWORD_AFTER_MFA": 15,
+    "WINDOW_PASSWORD_AFTER_BROWSER": 20,
+    "WINDOW_USER_REPORT": 120
+  },
+  "report_phrase_screen": [
+    "verify your account",
+    "password-change",
+    "password change"
+  ]
+}

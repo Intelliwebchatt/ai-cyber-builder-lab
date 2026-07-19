@@ -1,0 +1,14 @@
+{
+  "event_uid": "RPT-001",
+  "timestamp": "2026-08-12T16:02:40Z",
+  "ticket_id": "HD-2026-0812-017",
+  "reporter": "jordan.lee@example.test",
+  "source": "helpdesk_ticketing",
+  "summary": "Unexpected account verification page and password-change confirmation",
+  "description": "User reports an unexpected verify your account page and later received a password-change confirmation email. User states the prompts were completed because the page looked official.",
+  "synthetic": true,
+  "provenance": {
+    "classification": "Repository-authored educational fixture",
+    "note": "Narrative context only; not forensic proof of compromise"
+  }
+}

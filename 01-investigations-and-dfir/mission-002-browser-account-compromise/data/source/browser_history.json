@@ -1,0 +1,51 @@
+{
+  "synthetic": true,
+  "provenance": {
+    "classification": "Repository-authored educational fixture",
+    "note": "Not collected from a real browser profile",
+    "chromium_transition": "Core values: 0=LINK, 1=TYPED (ui/base/page_transition_types.h). BRW-001 is TYPED; BRW-002 and BRW-004 are LINK navigations via from_visit."
+  },
+  "visits": [
+    {
+      "event_uid": "BRW-001",
+      "sqlite_url_id": 1,
+      "sqlite_visit_id": 1,
+      "url": "https://accounts.example.test/signin",
+      "title": "Example Civic Services Sign-In",
+      "visit_time_utc": "2026-08-12T15:41:08Z",
+      "transition": 1,
+      "from_visit": 0,
+      "typed_count": 1,
+      "visit_count": 1,
+      "synthetic": true
+    },
+    {
+      "event_uid": "BRW-002",
+      "sqlite_url_id": 2,
+      "sqlite_visit_id": 2,
+      "url": "https://accounts-example.test/account/verify",
+      "title": "Verify your account",
+      "visit_time_utc": "2026-08-12T15:42:31Z",
+      "transition": 0,
+      "from_visit": 1,
+      "typed_count": 0,
+      "visit_count": 1,
+      "synthetic": true,
+      "transition_note": "Chromium LINK (0): navigated from BRW-001; not independently typed"
+    },
+    {
+      "event_uid": "BRW-004",
+      "sqlite_url_id": 3,
+      "sqlite_visit_id": 3,
+      "url": "https://accounts.example.test/security",
+      "title": "Security settings",
+      "visit_time_utc": "2026-08-12T15:46:05Z",
+      "transition": 0,
+      "from_visit": 2,
+      "typed_count": 0,
+      "visit_count": 1,
+      "synthetic": true,
+      "transition_note": "Chromium LINK (0): navigated from BRW-002; not independently typed"
+    }
+  ]
+}

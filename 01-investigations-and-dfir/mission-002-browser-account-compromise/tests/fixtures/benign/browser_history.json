@@ -1,0 +1,36 @@
+{
+  "synthetic": true,
+  "provenance": {
+    "classification": "Test-only benign fixture",
+    "note": "Not case evidence"
+  },
+  "visits": [
+    {
+      "event_uid": "BEN-BRW-001",
+      "sqlite_url_id": 1,
+      "sqlite_visit_id": 1,
+      "url": "https://accounts.example.test/signin",
+      "title": "Example Civic Services Sign-In",
+      "visit_time_utc": "2026-08-12T15:41:08Z",
+      "transition": 1,
+      "from_visit": 0,
+      "typed_count": 1,
+      "visit_count": 1,
+      "synthetic": true
+    },
+    {
+      "event_uid": "BEN-BRW-002",
+      "sqlite_url_id": 2,
+      "sqlite_visit_id": 2,
+      "url": "https://accounts.example.test/security",
+      "title": "Security settings",
+      "visit_time_utc": "2026-08-12T15:46:05Z",
+      "transition": 0,
+      "from_visit": 1,
+      "typed_count": 0,
+      "visit_count": 1,
+      "synthetic": true,
+      "transition_note": "Chromium LINK (0): navigated from BEN-BRW-001"
+    }
+  ]
+}

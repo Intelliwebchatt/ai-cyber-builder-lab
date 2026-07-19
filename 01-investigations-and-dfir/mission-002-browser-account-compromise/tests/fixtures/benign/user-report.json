@@ -1,0 +1,14 @@
+{
+  "event_uid": "BEN-RPT-001",
+  "timestamp": "2026-08-12T16:02:40Z",
+  "ticket_id": "HD-BENIGN-001",
+  "reporter": "jordan.lee@example.test",
+  "source": "helpdesk_ticketing",
+  "summary": "Question about vacation balance page",
+  "description": "User asks whether the leave-policy PDF on the official security settings page is current. No unexpected prompts were reported.",
+  "synthetic": true,
+  "provenance": {
+    "classification": "Test-only benign fixture",
+    "note": "Not case evidence"
+  }
+}

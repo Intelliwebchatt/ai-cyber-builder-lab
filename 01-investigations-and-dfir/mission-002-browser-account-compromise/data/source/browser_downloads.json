@@ -1,0 +1,28 @@
+{
+  "synthetic": true,
+  "provenance": {
+    "classification": "Repository-authored educational fixture",
+    "note": "Download metadata only; no file payload bytes are included"
+  },
+  "downloads": [
+    {
+      "event_uid": "BRW-003",
+      "sqlite_download_id": 1,
+      "guid": "11111111-2222-3333-4444-555555555555",
+      "current_path": "C:\\Users\\jordan.lee\\Downloads\\account-security-notice.pdf",
+      "target_path": "C:\\Users\\jordan.lee\\Downloads\\account-security-notice.pdf",
+      "tab_url": "https://accounts-example.test/account/verify",
+      "tab_referrer_url": "https://accounts.example.test/signin",
+      "mime_type": "application/pdf",
+      "original_mime_type": "application/pdf",
+      "total_bytes": 24576,
+      "received_bytes": 24576,
+      "start_time_utc": "2026-08-12T15:43:04Z",
+      "end_time_utc": "2026-08-12T15:43:04Z",
+      "danger_type": 0,
+      "interrupt_reason": 0,
+      "payload_included": false,
+      "synthetic": true
+    }
+  ]
+}
