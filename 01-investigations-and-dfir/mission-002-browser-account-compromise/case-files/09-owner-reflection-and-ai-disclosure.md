@@ -1,14 +1,12 @@
 # Owner reflection and AI-assistance disclosure
 
-This worksheet is reserved for Shane Lockhart. Do not pre-fill judgments or reflection text with AI-authored answers.
+**Analyst:** Shane Lockhart  
+**Case ID:** M002-2026
 
-## Reflection prompts
+## Reflection
 
-- What decision was hardest?
-- What evidence changed the initial theory?
-- What would be collected next in a real environment?
-- What skill should be strengthened before the next project?
+The sequence can look like cause and effect, but before properly collecting all available data and conducting interviews when possible, there is not enough proof to confirm compromise.
 
 ## AI assistance disclosure
 
-State exactly how AI assisted and how all output was independently validated.
+Cursor created the scaffold, code, tests, evidence packet, and documentation drafts under Shane’s direction. Shane approved the investigation disposition, hypothesis, priority, alternate explanation, response recommendations, and supplied the reflection above. ChatGPT served as supervising reviewer, inspected pull-request diffs, reran selected tests, builds, analyzers, and hashes, requested corrections, and controlled merge decisions with Shane’s authorization. Machine-generated findings were treated as investigation leads and checked against the synthetic source evidence. This is AI-assisted portfolio work and is not presented as unaided authorship.

@@ -1,9 +1,9 @@
 # Mission 002: Browser artifacts and suspected account compromise
 
-**Status:** Scaffolded, not yet completed  
+**Status:** Completed  
 **Type:** Defensive investigation using synthetic evidence  
 **Primary roles:** Digital-forensics analyst, SOC / IR triage, identity investigator  
-**Analyst:** Shane Lockhart (owner judgments deferred to later phases)
+**Analyst:** Shane Lockhart
 
 ## Scenario
 
@@ -26,7 +26,7 @@ Prior track context only: [Mission 001](../mission-001-phishing-powershell/) is 
 ## Repository contents
 
 ```text
-case-files/   Empty investigation worksheets for later owner-guided work
+case-files/   Completed investigation worksheets, reflection, and AI disclosure
 data/source/  Reviewable synthetic text sources and immutable manifest
 data/generated/  Locally built SQLite History DB (ignored; not tracked)
 reports/      Generated-tool output (ignored generated Markdown)
@@ -98,7 +98,7 @@ Official hosts are compared by exact normalized hostname against the manifest al
 9. Write the [executive report](case-files/08-executive-report.md).
 10. Add a personal reflection and AI-assistance disclosure in [09-owner-reflection-and-ai-disclosure.md](case-files/09-owner-reflection-and-ai-disclosure.md).
 
-Steps 3–10 remain for owner-guided Phase C/D work. This foundation does not pre-fill owner judgments.
+These steps are complete for this synthetic portfolio mission.
 
 ## Completion standard
 

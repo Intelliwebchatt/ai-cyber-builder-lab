@@ -150,6 +150,10 @@ This repository also hosts a six-track cybersecurity career lab. **SignalTrace**
 
 [Mission 001: Phishing and PowerShell investigation](01-investigations-and-dfir/mission-001-phishing-powershell/) — **Completed.** Synthetic dataset, starter analyzer, tests, evidence log, timeline, indicator analysis, ATT&CK map, containment/remediation plan, and executive report are present; investigative judgments were approved by the repository owner, with compromise not confirmed from the supplied evidence.
 
+### Mission 002
+
+[Mission 002: Browser artifacts and suspected account compromise](01-investigations-and-dfir/mission-002-browser-account-compromise/) — **Completed.** Synthetic browser and identity dataset, fixture builder, analyzer, tests, evidence log, combined timeline, identity correlation, ATT&CK hypothesis map, containment plan, executive report, owner reflection, and AI-assistance disclosure are present; investigative judgments were approved by the repository owner, with compromise not confirmed from the supplied evidence.
+
 ### Degree, certification, evidence, and safety
 
 - [Degree, project, and certification map](docs/DEGREE_CERT_PROJECT_MAP.md)
